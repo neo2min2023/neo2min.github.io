@@ -6,7 +6,17 @@
     <description>Recent content on EM算法和有限混合模型</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 16 Apr 2023 09:26:27 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 16 Apr 2023 23:04:57 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hugo_workflow</title>
+      <link>https:neo2min2023.github.io /posts/hugo_workflow/</link>
+      <pubDate>Sun, 16 Apr 2023 23:04:57 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/hugo_workflow/</guid>
+      <description>Firstly, start two repos named researchNotes and neo2min2023.github.io on github.
+Build a website locally build site and push to github # pwd is projects hugo new site researchNotes cd researchNotes git init git add remote https://github.com/neo2min2023/researchNotes.git git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke echo &amp;#34;theme = &amp;#39;ananke&amp;#39;&amp;#34; &amp;gt;&amp;gt; config.toml hugo server git add . git commit -m &amp;#39;init commit&amp;#39; git push -u origin master # cd .. git clone https://github.com/neo2min2023/neo2min2023.github.io.git cd neo2min2023.github.io git checkout -b main touch readme git add .</description>
+    </item>
+    
     <item>
       <title>math typesetting in hugo</title>
       <link>https:neo2min2023.github.io /posts/math_code_demo/</link>

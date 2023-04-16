@@ -96,6 +96,24 @@
   <div class="bg-white mb3 pa4 gray overflow-hidden">
     <span class="f6 db">Posts</span>
     <h1 class="f3 near-black">
+      <a href="/posts/hugo_workflow/" class="link black dim">
+        Hugo_workflow
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Firstly, start two repos named researchNotes and neo2min2023.github.io on github.
+Build a website locally build site and push to github # pwd is projects hugo new site researchNotes cd researchNotes git init git add remote https://github.com/neo2min2023/researchNotes.git git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke echo &#34;theme = &#39;ananke&#39;&#34; &gt;&gt; config.toml hugo server git add . git commit -m &#39;init commit&#39; git push -u origin master # cd .. git clone https://github.com/neo2min2023/neo2min2023.github.io.git cd neo2min2023.github.io git checkout -b main touch readme git add .
+    </div>
+  </div>
+</div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
       <a href="/posts/math_code_demo/" class="link black dim">
         math typesetting in hugo
       </a>
