@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>EM算法和有限混合模型</title>
+    <link>https:neo2min2023.github.io /</link>
+    <description>Recent content on EM算法和有限混合模型</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 16 Apr 2023 09:26:27 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>math typesetting in hugo</title>
+      <link>https:neo2min2023.github.io /posts/math_code_demo/</link>
+      <pubDate>Sun, 16 Apr 2023 09:26:27 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/math_code_demo/</guid>
+      <description>Task and solution Hugo can process math typesetting with the help of Katex, which can be achieved by a few steps of configuration.
+When using ananke theme, one can
+copy the following code from Katex website to theme/ananke/layout/partials/katex.html: &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css&amp;#34; integrity=&amp;#34;sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js&amp;#34; integrity=&amp;#34;sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js&amp;#34; integrity=&amp;#34;sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script&amp;gt; document.addEventListener(&amp;#34;DOMContentLoaded&amp;#34;, function() { renderMathInElement(document.body, { // customised options // • auto-render specific keys, e.g.: delimiters: [ {left: &amp;#39;$$&amp;#39;, right: &amp;#39;$$&amp;#39;, display: true}, {left: &amp;#39;$&amp;#39;, right: &amp;#39;$&amp;#39;, display: false}, {left: &amp;#39;\\(&amp;#39;, right: &amp;#39;\\)&amp;#39;, display: false}, {left: &amp;#39;\\[&amp;#39;, right: &amp;#39;\\]&amp;#39;, display: true} ], // • rendering keys, e.</description>
+    </item>
+    
+    <item>
+      <title>My First Post</title>
+      <link>https:neo2min2023.github.io /posts/my-first-post/</link>
+      <pubDate>Sun, 16 Apr 2023 09:20:29 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/my-first-post/</guid>
+      <description>This is a header some content
+bold text
+a list:
+item a item b item c an enumerated list:
+first item first item first item </description>
+    </item>
+    
+  </channel>
+</rss>
