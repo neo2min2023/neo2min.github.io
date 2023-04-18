@@ -6,7 +6,16 @@
     <description>Recent content on Research Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 18 Apr 2023 11:22:17 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 18 Apr 2023 17:55:43 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>EM_simulation</title>
+      <link>https:neo2min2023.github.io /posts/fmm/em_simulation/</link>
+      <pubDate>Tue, 18 Apr 2023 17:55:43 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/fmm/em_simulation/</guid>
+      <description>EM algorithm for normal mixture models new version # initial values pi1_0 &amp;lt;- 0.4 pi2_0 &amp;lt;- 0.6 mu1_0 &amp;lt;- -1 mu2_0 &amp;lt;- 3 sigma1_0 &amp;lt;- sqrt(1) sigma2_0 &amp;lt;- sqrt(2) N &amp;lt;- 50 maxIter &amp;lt;- 100 loglik &amp;lt;- rep(NA, maxIter) set.seed(4) df &amp;lt;- data.table(grp=sample(c(0,1), N, replace=TRUE, prob=c(pi1_0, pi2_0)), x1=rnorm(N, mu1_0, sigma1_0^2), x2=rnorm(N, mu2_0, sigma2_0^2)) df[, x:=fifelse(grp==0, x1, x2)] kde_x &amp;lt;- df[, density(x)] df[, plot(kde_x)] NULL xs &amp;lt;- kde_x$x df[, plot(kde_x, ylim=c(-1.1, 0.</description>
+    </item>
+    
     <item>
       <title>convert lyx to markdown file</title>
       <link>https:neo2min2023.github.io /posts/siterelated/lyx2markdown/</link>
