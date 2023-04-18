@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fmm_implementation | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Fmm_implementation</span></h1>
+
+<h2 class="date">2023/04/18</h2>
+</div>
+
+<main>
+    <article>
+    <header>
+        <h1>Fmm_implementation</h1>
+    </header>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#fmm-implementation">FMM implementation</a></li>
+  </ol>
+</nav>
+    </aside>
+        <h1 id="fmm-implementation">FMM implementation</h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#75715e"># code</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">library</span>(fastglm)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>myols <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(X, Y) { <span style="color:#a6e22e">solve</span>(<span style="color:#a6e22e">crossprod</span>(X)) <span style="color:#f92672">%*%</span> <span style="color:#a6e22e">crossprod</span>(X, Y)}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>X0 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">cbind</span>(<span style="color:#ae81ff">1</span>, <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">rnorm</span>(<span style="color:#ae81ff">8</span>), ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>))
+</span></span><span style="display:flex;"><span>Y0 <span style="color:#f92672">&lt;-</span> X0 <span style="color:#f92672">%*%</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">.2</span>, <span style="color:#ae81ff">-1.3</span>, <span style="color:#ae81ff">2.7</span>)) <span style="color:#f92672">+</span> <span style="color:#a6e22e">rnorm</span>(<span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>df0 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">as.data.frame</span>(<span style="color:#a6e22e">cbind</span>(X0, Y0))
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">names</span>(df0) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;iota&#34;</span>, <span style="color:#e6db74">&#34;k&#34;</span>, <span style="color:#e6db74">&#34;l&#34;</span>, <span style="color:#e6db74">&#34;y&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#weights &lt;- c(1,2,3, 4)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#weightsSqrt &lt;- sqrt(weights)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mywls <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(X, Y, weights) {
+</span></span><span style="display:flex;"><span>    weightsSqrt <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">sqrt</span>(weights)
+</span></span><span style="display:flex;"><span>    Xtilde <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(X, <span style="color:#ae81ff">2</span>, <span style="color:#a6e22e">function</span>(col){<span style="color:#a6e22e">return</span>(col <span style="color:#f92672">*</span> weightsSqrt)})
+</span></span><span style="display:flex;"><span>    Ytilde <span style="color:#f92672">&lt;-</span> Y <span style="color:#f92672">*</span> weightsSqrt
+</span></span><span style="display:flex;"><span>    betaHat <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">solve</span>(<span style="color:#a6e22e">crossprod</span>(Xtilde)) <span style="color:#f92672">%*%</span> <span style="color:#a6e22e">crossprod</span>(Xtilde, Ytilde)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">return</span>(<span style="color:#a6e22e">list</span>(coefficients<span style="color:#f92672">=</span>betaHat, prior.weights<span style="color:#f92672">=</span>weights, residuals<span style="color:#f92672">=</span>(Y <span style="color:#f92672">-</span> X <span style="color:#f92672">%*%</span> betaHat)))
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">mywls</span>(X0, Y0, weights<span style="color:#f92672">=</span><span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>))
+</span></span></code></pre></div><pre tabindex="0"><code>$coefficients
+      [,1]
+[1,]  2.06
+[2,] -1.09
+[3,]  2.22
+
+$prior.weights
+[1] 1 1 1 1
+
+$residuals
+         [,1]
+[1,] -0.10524
+[2,]  0.01001
+[3,] -0.00297
+[4,]  0.09820
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#a6e22e">str</span>(<span style="color:#a6e22e">mywls</span>(X0, Y0, weights<span style="color:#f92672">=</span><span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>)))
+</span></span></code></pre></div><pre tabindex="0"><code>List of 3
+ $ coefficients : num [1:3, 1] 2.06 -1.09 2.22
+ $ prior.weights: num [1:4] 1 1 1 1
+ $ residuals    : num [1:4, 1] -0.10524 0.01001 -0.00297 0.0982
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#a6e22e">coef</span>(<span style="color:#a6e22e">lm</span>(y <span style="color:#f92672">~</span>  k <span style="color:#f92672">+</span> l, data<span style="color:#f92672">=</span>df0))
+</span></span></code></pre></div><pre tabindex="0"><code>(Intercept)           k           l 
+       2.06       -1.09        2.22 
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#a6e22e">mywls</span>(X0, Y0, weights<span style="color:#f92672">=</span><span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>))<span style="color:#f92672">$</span>coefficients
+</span></span></code></pre></div><pre tabindex="0"><code>      [,1]
+[1,]  2.06
+[2,] -1.09
+[3,]  2.22
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#a6e22e">mywls</span>(X0, Y0, weights<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">4</span>)
+</span></span></code></pre></div><pre tabindex="0"><code>$coefficients
+      [,1]
+[1,]  2.11
+[2,] -1.06
+[3,]  2.26
+
+$prior.weights
+[1] 1 2 3 4
+
+$residuals
+         [,1]
+[1,] -0.16189
+[2,]  0.00770
+[3,] -0.00152
+[4,]  0.03776
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#a6e22e">coef</span>(<span style="color:#a6e22e">lm</span>(y <span style="color:#f92672">~</span>  k <span style="color:#f92672">+</span> l, data<span style="color:#f92672">=</span>df0, weights<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">4</span>))
+</span></span></code></pre></div><pre tabindex="0"><code>(Intercept)           k           l 
+       2.11       -1.06        2.26 
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>vcovFmm <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(priorWeights, residUnweighted, sigma, X){
+</span></span><span style="display:flex;"><span>    G <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">diag</span>(<span style="color:#ae81ff">0</span>, nrow<span style="color:#f92672">=</span>(<span style="color:#a6e22e">ncol</span>(X)<span style="color:#ae81ff">+1</span>)<span style="color:#f92672">*</span><span style="color:#a6e22e">length</span>(sigma))
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">for </span>(i in <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#a6e22e">nrow</span>(X)){
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># i &lt;- 1</span>
+</span></span><span style="display:flex;"><span>        ui <span style="color:#f92672">&lt;-</span> priorWeights[i,]
+</span></span><span style="display:flex;"><span>        v <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>sigma^2
+</span></span><span style="display:flex;"><span>        wi <span style="color:#f92672">&lt;-</span> residUnweighted[i,]
+</span></span><span style="display:flex;"><span>        ri <span style="color:#f92672">&lt;-</span> ui <span style="color:#f92672">*</span> wi
+</span></span><span style="display:flex;"><span>        Xi <span style="color:#f92672">&lt;-</span> X[i,]
+</span></span><span style="display:flex;"><span>        si <span style="color:#f92672">&lt;-</span> wi^2
+</span></span><span style="display:flex;"><span>        gi <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>((v <span style="color:#f92672">*</span> ri) <span style="color:#f92672">%x%</span> Xi, <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> (v<span style="color:#f92672">*</span>ui)<span style="color:#f92672">*</span>(v<span style="color:#f92672">*</span>si <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>        G <span style="color:#f92672">&lt;-</span> G <span style="color:#f92672">+</span> gi <span style="color:#f92672">%o%</span> gi
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">return</span>(<span style="color:#a6e22e">sqrt</span>(<span style="color:#a6e22e">diag</span>(<span style="color:#a6e22e">solve</span>(G))))
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#set.seed(20230105)</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">set.seed</span>(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>N <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">6000</span>
+</span></span><span style="display:flex;"><span>numVar <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">3</span> <span style="color:#75715e"># number of variables whose coefficients are to be estimated, includeing a const</span>
+</span></span><span style="display:flex;"><span>priorTrue <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.3</span>, <span style="color:#ae81ff">0.5</span>)
+</span></span><span style="display:flex;"><span>numCluster <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">length</span>(priorTrue) <span style="color:#75715e"># number of clusters</span>
+</span></span><span style="display:flex;"><span>M <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">length</span>(priorTrue)
+</span></span><span style="display:flex;"><span>z <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">t</span>(<span style="color:#a6e22e">rmultinom</span>(N, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, prob <span style="color:#f92672">=</span> priorTrue))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>component_coef1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0.3</span>, <span style="color:#ae81ff">0.64</span>) <span style="color:#75715e"># b1k, b1l</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#component_coef2 &lt;- c(0.14, 0.83) # b1k, b1l</span>
+</span></span><span style="display:flex;"><span>component_coef2 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">-0.14</span>, <span style="color:#ae81ff">0.83</span>) <span style="color:#75715e"># b1k, b1l</span>
+</span></span><span style="display:flex;"><span>component_coef3 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0.73</span>, <span style="color:#ae81ff">0.24</span>) <span style="color:#75715e"># b1k, b1l</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#component_coef3 &lt;- c(0.63, 0.28) # b1k, b1l</span>
+</span></span><span style="display:flex;"><span>component_sd <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">sqrt</span>(<span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.3</span>, <span style="color:#ae81ff">0.9</span>))
+</span></span><span style="display:flex;"><span>k <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">runif</span>(N, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">13</span>)
+</span></span><span style="display:flex;"><span>l <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">runif</span>(N, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">9</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">cbind</span>(k, l)
+</span></span><span style="display:flex;"><span>b <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">cbind</span>(component_coef1, component_coef2, component_coef3)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>component_Mean_full_info <span style="color:#f92672">&lt;-</span> x <span style="color:#f92672">%*%</span> b
+</span></span><span style="display:flex;"><span>componentMean <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(component_Mean_full_info ^ z, <span style="color:#ae81ff">1</span>, prod)
+</span></span><span style="display:flex;"><span>component_error_full_info <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">rnorm</span>(N<span style="color:#f92672">*</span>M), ncol<span style="color:#f92672">=</span>M) <span style="color:#f92672">%*%</span> <span style="color:#a6e22e">diag</span>(component_sd)
+</span></span><span style="display:flex;"><span>component_error <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(component_error_full_info ^ z, <span style="color:#ae81ff">1</span>, prod)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>y <span style="color:#f92672">&lt;-</span> componentMean <span style="color:#f92672">+</span>  component_error
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>X <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">cbind</span>(<span style="color:#ae81ff">1</span>, x)
+</span></span><span style="display:flex;"><span>Y <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(componentMean <span style="color:#f92672">+</span> component_error, ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>x_names <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;iota&#34;</span>, <span style="color:#a6e22e">paste0</span>(<span style="color:#e6db74">&#34;X&#34;</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>(numVar<span style="color:#ae81ff">-1</span>)))
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">colnames</span>(X) <span style="color:#f92672">&lt;-</span> x_names
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">colnames</span>(Y) <span style="color:#f92672">&lt;-</span> <span style="color:#e6db74">&#34;Y&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>fmm1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(X, Y, prior, B, sigma, numCluster<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">900</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>, calSE<span style="color:#f92672">=</span><span style="color:#66d9ef">FALSE</span>){
+</span></span><span style="display:flex;"><span>    numVar <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">ncol</span>(X)<span style="color:#75715e">#dim(X)[2]</span>
+</span></span><span style="display:flex;"><span>    nameSuffixClusterVar <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(<span style="color:#a6e22e">expand.grid</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>numVar, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>numCluster)[, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>)], <span style="color:#ae81ff">1</span>, paste0, collapse <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;_&#34;</span>)
+</span></span><span style="display:flex;"><span>    resName_b <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">paste</span>(<span style="color:#e6db74">&#34;b&#34;</span>, nameSuffixClusterVar, sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_&#34;</span>)
+</span></span><span style="display:flex;"><span>    resName_other <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(<span style="color:#a6e22e">expand.grid</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>numCluster, <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;sigma&#34;</span>, <span style="color:#e6db74">&#34;prior&#34;</span>))[, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>)], <span style="color:#ae81ff">1</span>, paste0, collapse <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;_&#34;</span>)
+</span></span><span style="display:flex;"><span>    resName <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(resName_b, resName_other, <span style="color:#e6db74">&#34;logLikFmm&#34;</span>, <span style="color:#e6db74">&#34;AICfmm&#34;</span>, <span style="color:#e6db74">&#34;BICfmm&#34;</span>)
+</span></span><span style="display:flex;"><span>    res <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#ae81ff">-1e6</span>, nrow<span style="color:#f92672">=</span>maxIter, ncol<span style="color:#f92672">=</span><span style="color:#a6e22e">length</span>(resName))
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">colnames</span>(res) <span style="color:#f92672">&lt;-</span> resName
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">for </span>(numIter in <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span>maxIter) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># E-step</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#numIter &lt;- 2</span>
+</span></span><span style="display:flex;"><span>        muY <span style="color:#f92672">&lt;-</span> X <span style="color:#f92672">%*%</span> B
+</span></span><span style="display:flex;"><span>        sigmaMat <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#ae81ff">1</span>, nrow<span style="color:#f92672">=</span>N) <span style="color:#f92672">%*%</span> sigma 
+</span></span><span style="display:flex;"><span>        pdfY <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">dnorm</span>(Y, muY, sigmaMat)
+</span></span><span style="display:flex;"><span>        pdfY_weighted <span style="color:#f92672">&lt;-</span> pdfY <span style="color:#f92672">%*%</span> <span style="color:#a6e22e">diag</span>(prior)
+</span></span><span style="display:flex;"><span>        logLikFmm <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">sum</span>(<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">apply</span>(pdfY_weighted, <span style="color:#ae81ff">1</span>, sum)))
+</span></span><span style="display:flex;"><span>        postProbSum <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(pdfY_weighted, <span style="color:#ae81ff">1</span>, sum)
+</span></span><span style="display:flex;"><span>        postProb <span style="color:#f92672">&lt;-</span> pdfY_weighted <span style="color:#f92672">/</span> postProbSum
+</span></span><span style="display:flex;"><span>        nanPos <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">is.nan</span>(postProb)
+</span></span><span style="display:flex;"><span>        postProb[nanPos] <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        postProb <span style="color:#f92672">&lt;-</span> postProb <span style="color:#f92672">+</span> nanPos <span style="color:#f92672">%*%</span> <span style="color:#a6e22e">diag</span>(prior)
+</span></span><span style="display:flex;"><span>        prior <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">apply</span>(postProb, <span style="color:#ae81ff">2</span>, mean)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">if </span>(<span style="color:#a6e22e">min</span>(prior) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0.01</span>){
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;!!!!!!!!!!!!!!!!!!!!dangerous prior!!!!!!!&#34;</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">print</span>(prior)
+</span></span><span style="display:flex;"><span>            break
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># M-step</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#glmResList &lt;- lapply(data.frame(postProb), function(weightPik){ subsetIdx &lt;- (weightPik&gt;1e-5);  return(fastglm(X[subsetIdx,], Y[subsetIdx], weights=weightPik[subsetIdx])) }) # if zero weights not filtered out, fastglm will prompt warning about it and the AIC will be Inf. However, it is better NOT to filter out those obs, since they are used in calculation of se. Hence, function fastglmPure is used to replace fastglm becasue fastglmPure is lighter and does not warn about zero weights.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#glmResList1 &lt;- lapply(data.frame(postProb), function(weightPik){return(fastglm(X, Y, weights=weightPik)) }) # if zero weights not filtered out, fastglm will prompt warning about it and the AIC will be Inf</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#glmResList &lt;- lapply(data.frame(postProb), function(weightPik){return(fastglmPure(X, Y, weights=weightPik)) }) # if zero weights not filtered out, fastglm will prompt warning about it and the AIC will be Inf</span>
+</span></span><span style="display:flex;"><span>    glmResList <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">lapply</span>(<span style="color:#a6e22e">data.frame</span>(postProb), <span style="color:#a6e22e">function</span>(weightPik){<span style="color:#a6e22e">return</span>(<span style="color:#a6e22e">mywls</span>(X, Y, weights<span style="color:#f92672">=</span>weightPik)) }) <span style="color:#75715e"># if zero weights not filtered out, fastglm will prompt warning about it and the AIC will be Inf</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#str(glmResList[[1]])</span>
+</span></span><span style="display:flex;"><span>    B <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">unlist</span>(<span style="color:#a6e22e">lapply</span>(glmResList, <span style="color:#e6db74">&#34;[[&#34;</span>, <span style="color:#e6db74">&#34;coefficients&#34;</span>)), ncol<span style="color:#f92672">=</span>numCluster)
+</span></span><span style="display:flex;"><span>    sigma <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">pmax</span>(<span style="color:#a6e22e">unlist</span>(<span style="color:#a6e22e">lapply</span>(glmResList, <span style="color:#a6e22e">function</span>(glmRes){<span style="color:#a6e22e">sqrt</span>((<span style="color:#a6e22e">sum</span>(glmRes<span style="color:#f92672">$</span>prior.weights <span style="color:#f92672">*</span> (glmRes<span style="color:#f92672">$</span>residuals)^2))<span style="color:#f92672">/</span><span style="color:#a6e22e">sum</span>(glmRes<span style="color:#f92672">$</span>prior.weights))})), <span style="color:#ae81ff">0.01</span>) <span style="color:#75715e"># prevent sigma to be too smale, which causes unbounded logliklihood</span>
+</span></span><span style="display:flex;"><span>        AICfmm <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> numVar <span style="color:#f92672">-</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> logLikFmm <span style="color:#75715e"># Green EA P561</span>
+</span></span><span style="display:flex;"><span>        BICfmm <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">log</span>(N) <span style="color:#f92672">*</span> numVar <span style="color:#f92672">-</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> logLikFmm
+</span></span><span style="display:flex;"><span>        res[numIter,] <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#a6e22e">c</span>(B), sigma, prior, logLikFmm, AICfmm, BICfmm)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">print</span>(<span style="color:#a6e22e">paste0</span>(<span style="color:#e6db74">&#34;Iteration &#34;</span>, numIter<span style="color:#ae81ff">-1</span>, <span style="color:#e6db74">&#34;:  (EM) log likelihood =  &#34;</span>, logLikFmm))
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">if </span>( <span style="color:#a6e22e">abs</span>(res[numIter, <span style="color:#e6db74">&#34;logLikFmm&#34;</span>] <span style="color:#f92672">-</span> res[numIter<span style="color:#ae81ff">-1</span>, <span style="color:#e6db74">&#34;logLikFmm&#34;</span>] ) <span style="color:#f92672">&lt;</span> tol) {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">#residUnweighted &lt;- matrix(unlist(lapply(glmResList, function(glmRes){return(glmRes$residuals)})), ncol=length(glmResList))</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">#priorWeights &lt;- matrix(unlist(lapply(glmResList, function(glmRes){return(glmRes$prior.weights)})), ncol=length(glmResList))</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">#se &lt;- vcovFmm(priorWeights, residUnweighted, sigma, X)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;hit tolerance&#34;</span>)
+</span></span><span style="display:flex;"><span>            break
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">if </span>(numIter<span style="color:#f92672">==</span>maxIter){ 
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">#residUnweighted &lt;- matrix(unlist(lapply(glmResList, function(glmRes){return(glmRes$residuals)})), ncol=length(glmResList))</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">#priorWeights &lt;- matrix(unlist(lapply(glmResList, function(glmRes){return(glmRes$prior.weights)})), ncol=length(glmResList))</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">#se &lt;- vcovFmm(priorWeights, residUnweighted, sigma, X)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;maxIter is hit, consider increasing its value&#34;</span>) 
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#return(res[numIter,])</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">if </span>(calSE <span style="color:#f92672">==</span> <span style="color:#66d9ef">FALSE</span>){
+</span></span><span style="display:flex;"><span>        se <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1000</span>, (numVar<span style="color:#ae81ff">+1</span>)<span style="color:#f92672">*</span>numCluster)
+</span></span><span style="display:flex;"><span>    } else {
+</span></span><span style="display:flex;"><span>        residUnweighted <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">unlist</span>(<span style="color:#a6e22e">lapply</span>(glmResList, <span style="color:#a6e22e">function</span>(glmRes){<span style="color:#a6e22e">return</span>(glmRes<span style="color:#f92672">$</span>residuals)})), ncol<span style="color:#f92672">=</span><span style="color:#a6e22e">length</span>(glmResList))
+</span></span><span style="display:flex;"><span>        priorWeights <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">unlist</span>(<span style="color:#a6e22e">lapply</span>(glmResList, <span style="color:#a6e22e">function</span>(glmRes){<span style="color:#a6e22e">return</span>(glmRes<span style="color:#f92672">$</span>prior.weights)})), ncol<span style="color:#f92672">=</span><span style="color:#a6e22e">length</span>(glmResList))
+</span></span><span style="display:flex;"><span>        se <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">vcovFmm</span>(priorWeights, residUnweighted, sigma, X)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">return</span>(<span style="color:#a6e22e">list</span>(coefficients<span style="color:#f92672">=</span>res[numIter,], se<span style="color:#f92672">=</span>se))
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#prior0 &lt;- rep(1/M, M)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#B0 &lt;- matrix(runif(M*numVar, -5, 5), nrow=numVar, ncol=M)</span>
+</span></span><span style="display:flex;"><span>prior0 <span style="color:#f92672">&lt;-</span> priorTrue
+</span></span><span style="display:flex;"><span>B0 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(<span style="color:#ae81ff">0</span>, b)
+</span></span><span style="display:flex;"><span>sigma0 <span style="color:#f92672">&lt;-</span> component_sd
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">system.time</span>(<span style="color:#a6e22e">fmm1</span>(X, Y, prior0, B0, sigma0, numCluster<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">600</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>))
+</span></span></code></pre></div><pre tabindex="0"><code>[1] &#34;Iteration 1:  (EM) log likelihood =  -10838.624915828&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -10831.5645746067&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -10830.6905795698&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -10830.4315136426&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -10830.3106166206&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -10830.2414625271&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -10830.1984247177&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -10830.1705822997&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -10830.1522158195&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -10830.1399765355&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -10830.1317768686&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -10830.1262683208&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -10830.1225624171&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -10830.1200674665&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -10830.1183871807&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -10830.1172553588&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -10830.1164929154&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -10830.1159792819&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -10830.115633257&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -10830.1154001437&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -10830.1152430958&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -10830.1151372916&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -10830.1150660094&#34;
+[1] &#34;hit tolerance&#34;
+</code></pre><pre tabindex="0"><code>   user  system elapsed 
+  1.719   0.000   0.346 
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>fmmRes1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmm1</span>(X, Y, prior0, B0, sigma0, numCluster<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">600</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>,calSE<span style="color:#f92672">=</span><span style="color:#66d9ef">FALSE</span>)
+</span></span></code></pre></div><pre tabindex="0"><code>[1] &#34;Iteration 1:  (EM) log likelihood =  -10838.624915828&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -10831.5645746067&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -10830.6905795698&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -10830.4315136426&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -10830.3106166206&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -10830.2414625271&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -10830.1984247177&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -10830.1705822997&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -10830.1522158195&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -10830.1399765355&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -10830.1317768686&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -10830.1262683208&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -10830.1225624171&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -10830.1200674665&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -10830.1183871807&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -10830.1172553588&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -10830.1164929154&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -10830.1159792819&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -10830.115633257&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -10830.1154001437&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -10830.1152430958&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -10830.1151372916&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -10830.1150660094&#34;
+[1] &#34;hit tolerance&#34;
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>fmmRes1
+</span></span></code></pre></div><pre tabindex="0"><code>$coefficients
+      b_1_1       b_1_2       b_1_3       b_2_1       b_2_2       b_2_3 
+     0.0169      0.3050      0.6281      0.0532     -0.1445      0.8261 
+      b_3_1       b_3_2       b_3_3     sigma_1     sigma_2     sigma_3 
+    -0.0700      0.7376      0.2440      0.6473      0.5536      0.9786 
+    prior_1     prior_2     prior_3   logLikFmm      AICfmm      BICfmm 
+     0.2020      0.2941      0.5040 -10830.1151  21666.2301  21686.3287 
+
+$se
+ [1] 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>fmmRes1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmm1</span>(X, Y, prior0, B0, sigma0, numCluster<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">600</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>, calSE<span style="color:#f92672">=</span><span style="color:#66d9ef">TRUE</span>)
+</span></span></code></pre></div><pre tabindex="0"><code>[1] &#34;Iteration 1:  (EM) log likelihood =  -10838.624915828&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -10831.5645746067&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -10830.6905795698&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -10830.4315136426&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -10830.3106166206&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -10830.2414625271&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -10830.1984247177&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -10830.1705822997&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -10830.1522158195&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -10830.1399765355&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -10830.1317768686&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -10830.1262683208&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -10830.1225624171&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -10830.1200674665&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -10830.1183871807&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -10830.1172553588&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -10830.1164929154&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -10830.1159792819&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -10830.115633257&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -10830.1154001437&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -10830.1152430958&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -10830.1151372916&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -10830.1150660094&#34;
+[1] &#34;hit tolerance&#34;
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>fmmRes1
+</span></span></code></pre></div><pre tabindex="0"><code>$coefficients
+      b_1_1       b_1_2       b_1_3       b_2_1       b_2_2       b_2_3 
+     0.0169      0.3050      0.6281      0.0532     -0.1445      0.8261 
+      b_3_1       b_3_2       b_3_3     sigma_1     sigma_2     sigma_3 
+    -0.0700      0.7376      0.2440      0.6473      0.5536      0.9786 
+    prior_1     prior_2     prior_3   logLikFmm      AICfmm      BICfmm 
+     0.2020      0.2941      0.5040 -10830.1151  21666.2301  21686.3287 
+
+$se
+                                                                             X1 
+0.12011 0.01080 0.01248 0.05906 0.00586 0.00666 0.07732 0.00721 0.00937 0.02992 
+     X2      X3 
+0.01236 0.03083 
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>fmm2 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(X, Y, numCluster<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">900</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>, iterStartVal<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>, numRefineStartVal<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>){
+</span></span><span style="display:flex;"><span>    numVar <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">ncol</span>(X)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    prior0_1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>numCluster, numCluster)
+</span></span><span style="display:flex;"><span>    B0_1_mat <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">runif</span>(numCluster<span style="color:#f92672">*</span>numVar<span style="color:#f92672">*</span>iterStartVal, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>), nrow<span style="color:#f92672">=</span>iterStartVal)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#B0_1 &lt;- matrix(runif(numCluster*numVar, 0, 1), nrow=numVar, ncol=numCluster)</span>
+</span></span><span style="display:flex;"><span>    sigma0_1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1</span>, numCluster)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    mat2holdName <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmm1</span>(X, Y, prior0_1, <span style="color:#a6e22e">matrix</span>(B0_1_mat[1,], ncol<span style="color:#f92672">=</span>numCluster), sigma0_1, numCluster<span style="color:#f92672">=</span>numCluster, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-2</span>)<span style="color:#f92672">$</span>coefficients
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    startVals <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#66d9ef">NA</span>, nrow<span style="color:#f92672">=</span>iterStartVal, ncol<span style="color:#f92672">=</span>numCluster<span style="color:#f92672">*</span>(numVar<span style="color:#ae81ff">+2</span>)<span style="color:#ae81ff">+3</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">colnames</span>(startVals) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">names</span>(mat2holdName)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;Refining starting values: &#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">for </span>(i in <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>iterStartVal) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;-----------------------------------&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">print</span>(<span style="color:#a6e22e">paste</span>(<span style="color:#e6db74">&#34;draw: &#34;</span>, i))
+</span></span><span style="display:flex;"><span>        startVals[i,] <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmm1</span>(X, Y, prior0_1, <span style="color:#a6e22e">matrix</span>(B0_1_mat[i,], ncol<span style="color:#f92672">=</span>numCluster), sigma0_1, numCluster<span style="color:#f92672">=</span>numCluster, maxIter<span style="color:#f92672">=</span>numRefineStartVal, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-2</span>)<span style="color:#f92672">$</span>coefficients
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#startVals[order(startVals[,&#34;logLikFmm&#34;], decreasing=TRUE),]</span>
+</span></span><span style="display:flex;"><span>    startValRefined <span style="color:#f92672">&lt;-</span> startVals<span style="color:#a6e22e">[which.max</span>(startVals[, <span style="color:#e6db74">&#34;logLikFmm&#34;</span>]), ]
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    prior0_2 <span style="color:#f92672">&lt;-</span> startValRefined<span style="color:#a6e22e">[paste</span>(<span style="color:#e6db74">&#34;prior&#34;</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>numCluster, sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_&#34;</span>)]
+</span></span><span style="display:flex;"><span>    B0_2 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(startValRefined[1<span style="color:#f92672">:</span>(numCluster<span style="color:#f92672">*</span>numVar)], ncol<span style="color:#f92672">=</span>numCluster)
+</span></span><span style="display:flex;"><span>    sigma0_2 <span style="color:#f92672">&lt;-</span> startValRefined<span style="color:#a6e22e">[paste</span>(<span style="color:#e6db74">&#34;sigma&#34;</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>numCluster, sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_&#34;</span>)]
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;===================================&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;===================================&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;Fitting Full Model: &#34;</span>)
+</span></span><span style="display:flex;"><span>    finalRes <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmm1</span>(X, Y, prior0_2, B0_2, sigma0_2, numCluster<span style="color:#f92672">=</span>numCluster, maxIter<span style="color:#f92672">=</span>maxIter, tol<span style="color:#f92672">=</span>tol, calSE<span style="color:#f92672">=</span><span style="color:#66d9ef">TRUE</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">return</span>(finalRes)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>fmmRes <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">fmm2</span>(X, Y, numCluster<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, maxIter<span style="color:#f92672">=</span><span style="color:#ae81ff">300</span>, tol<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>, iterStartVal<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, numRefineStartVal <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>) 
+</span></span></code></pre></div><pre tabindex="0"><code>[1] &#34;Iteration 1:  (EM) log likelihood =  -14555.0191318443&#34;
+[1] &#34;maxIter is hit, consider increasing its value&#34;
+[1] &#34;Refining starting values: &#34;
+[1] &#34;-----------------------------------&#34;
+[1] &#34;draw:  1&#34;
+[1] &#34;Iteration 1:  (EM) log likelihood =  -14555.0191318443&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -11921.351881968&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -11290.1653133581&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -11012.6590541173&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -10914.6212914599&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -10880.1022159258&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -10863.3352335787&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -10852.8865538945&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -10845.72841936&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -10840.7252977825&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -10837.2536968411&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -10834.8780571356&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -10833.273287895&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -10832.2000240406&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -10831.4873135692&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -10831.0163338223&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -10830.7061266794&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -10830.5022759904&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -10830.3685308167&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -10830.280882011&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -10830.223489796&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -10830.1859319134&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -10830.1613638385&#34;
+[1] &#34;Iteration 24:  (EM) log likelihood =  -10830.1452970094&#34;
+[1] &#34;Iteration 25:  (EM) log likelihood =  -10830.1347910516&#34;
+[1] &#34;Iteration 26:  (EM) log likelihood =  -10830.1279213572&#34;
+[1] &#34;hit tolerance&#34;
+[1] &#34;-----------------------------------&#34;
+[1] &#34;draw:  2&#34;
+[1] &#34;Iteration 1:  (EM) log likelihood =  -24906.8656402563&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -12170.0168099608&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -11968.3942835117&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -11927.0955342641&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -11912.6769045365&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -11904.2761112802&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -11897.069108718&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -11889.2987683208&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -11879.672385696&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -11866.4515664875&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -11846.5457808522&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -11813.6830766618&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -11754.7393088347&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -11650.5917140855&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -11495.4079514009&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -11332.3970955258&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -11224.6446949108&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -11171.5673669069&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -11144.3668938099&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -11126.7940698629&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -11112.8396115757&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -11100.355807064&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -11088.5383245424&#34;
+[1] &#34;Iteration 24:  (EM) log likelihood =  -11077.0797301938&#34;
+[1] &#34;Iteration 25:  (EM) log likelihood =  -11065.8634513623&#34;
+[1] &#34;Iteration 26:  (EM) log likelihood =  -11054.8405088469&#34;
+[1] &#34;Iteration 27:  (EM) log likelihood =  -11043.9765181122&#34;
+[1] &#34;Iteration 28:  (EM) log likelihood =  -11033.2320124455&#34;
+[1] &#34;Iteration 29:  (EM) log likelihood =  -11022.5645089065&#34;
+[1] &#34;Iteration 30:  (EM) log likelihood =  -11011.943717022&#34;
+[1] &#34;Iteration 31:  (EM) log likelihood =  -11001.3613770324&#34;
+[1] &#34;Iteration 32:  (EM) log likelihood =  -10990.8200965289&#34;
+[1] &#34;Iteration 33:  (EM) log likelihood =  -10980.3112157879&#34;
+[1] &#34;Iteration 34:  (EM) log likelihood =  -10969.8010252284&#34;
+[1] &#34;Iteration 35:  (EM) log likelihood =  -10959.2300968495&#34;
+[1] &#34;Iteration 36:  (EM) log likelihood =  -10948.5259519266&#34;
+[1] &#34;Iteration 37:  (EM) log likelihood =  -10937.6348185077&#34;
+[1] &#34;Iteration 38:  (EM) log likelihood =  -10926.5679528811&#34;
+[1] &#34;Iteration 39:  (EM) log likelihood =  -10915.4310363658&#34;
+[1] &#34;Iteration 40:  (EM) log likelihood =  -10904.4107744351&#34;
+[1] &#34;Iteration 41:  (EM) log likelihood =  -10893.7333458117&#34;
+[1] &#34;Iteration 42:  (EM) log likelihood =  -10883.620155772&#34;
+[1] &#34;Iteration 43:  (EM) log likelihood =  -10874.2571799358&#34;
+[1] &#34;Iteration 44:  (EM) log likelihood =  -10865.7866842074&#34;
+[1] &#34;Iteration 45:  (EM) log likelihood =  -10858.3132503518&#34;
+[1] &#34;Iteration 46:  (EM) log likelihood =  -10851.9051129428&#34;
+[1] &#34;Iteration 47:  (EM) log likelihood =  -10846.582413526&#34;
+[1] &#34;Iteration 48:  (EM) log likelihood =  -10842.3045567947&#34;
+[1] &#34;Iteration 49:  (EM) log likelihood =  -10838.9730465235&#34;
+[1] &#34;Iteration 50:  (EM) log likelihood =  -10836.450802514&#34;
+[1] &#34;Iteration 51:  (EM) log likelihood =  -10834.5869567962&#34;
+[1] &#34;Iteration 52:  (EM) log likelihood =  -10833.2371484731&#34;
+[1] &#34;Iteration 53:  (EM) log likelihood =  -10832.2755692424&#34;
+[1] &#34;Iteration 54:  (EM) log likelihood =  -10831.5995734152&#34;
+[1] &#34;Iteration 55:  (EM) log likelihood =  -10831.1293364679&#34;
+[1] &#34;Iteration 56:  (EM) log likelihood =  -10830.8049528377&#34;
+[1] &#34;Iteration 57:  (EM) log likelihood =  -10830.5826524235&#34;
+[1] &#34;Iteration 58:  (EM) log likelihood =  -10830.4310960631&#34;
+[1] &#34;Iteration 59:  (EM) log likelihood =  -10830.3281887042&#34;
+[1] &#34;Iteration 60:  (EM) log likelihood =  -10830.2585355312&#34;
+[1] &#34;Iteration 61:  (EM) log likelihood =  -10830.2115070497&#34;
+[1] &#34;Iteration 62:  (EM) log likelihood =  -10830.1798152542&#34;
+[1] &#34;Iteration 63:  (EM) log likelihood =  -10830.1584902376&#34;
+[1] &#34;Iteration 64:  (EM) log likelihood =  -10830.1441571253&#34;
+[1] &#34;Iteration 65:  (EM) log likelihood =  -10830.1345316657&#34;
+[1] &#34;hit tolerance&#34;
+[1] &#34;-----------------------------------&#34;
+[1] &#34;draw:  3&#34;
+[1] &#34;Iteration 1:  (EM) log likelihood =  -44901.9557751631&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -13665.1566598172&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -13370.1767900847&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -13199.4227918278&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -12994.6350960892&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -12763.8047403102&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -12547.3932174408&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -12368.6742917986&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -12229.3580934692&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -12123.5882835047&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -12047.1222886042&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -11995.36907947&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -11962.5393180632&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -11941.3297213082&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -11925.8839297756&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -11912.5540170487&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -11898.8872947289&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -11882.6097168227&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -11860.6938984045&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -11828.0909019519&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -11775.6085638677&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -11687.2736617739&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -11546.0719571454&#34;
+[1] &#34;Iteration 24:  (EM) log likelihood =  -11356.8255703668&#34;
+[1] &#34;Iteration 25:  (EM) log likelihood =  -11167.7260661941&#34;
+[1] &#34;Iteration 26:  (EM) log likelihood =  -11038.0898098815&#34;
+[1] &#34;Iteration 27:  (EM) log likelihood =  -10972.9590029943&#34;
+[1] &#34;Iteration 28:  (EM) log likelihood =  -10940.9710270035&#34;
+[1] &#34;Iteration 29:  (EM) log likelihood =  -10921.7948550872&#34;
+[1] &#34;Iteration 30:  (EM) log likelihood =  -10907.5767646956&#34;
+[1] &#34;Iteration 31:  (EM) log likelihood =  -10895.5899556862&#34;
+[1] &#34;Iteration 32:  (EM) log likelihood =  -10884.9226018063&#34;
+[1] &#34;Iteration 33:  (EM) log likelihood =  -10875.3055629608&#34;
+[1] &#34;Iteration 34:  (EM) log likelihood =  -10866.6908597022&#34;
+[1] &#34;Iteration 35:  (EM) log likelihood =  -10859.1024387762&#34;
+[1] &#34;Iteration 36:  (EM) log likelihood =  -10852.5790564389&#34;
+[1] &#34;Iteration 37:  (EM) log likelihood =  -10847.1374520411&#34;
+[1] &#34;Iteration 38:  (EM) log likelihood =  -10842.7443568068&#34;
+[1] &#34;Iteration 39:  (EM) log likelihood =  -10839.3094709372&#34;
+[1] &#34;Iteration 40:  (EM) log likelihood =  -10836.700554126&#34;
+[1] &#34;Iteration 41:  (EM) log likelihood =  -10834.767860762&#34;
+[1] &#34;Iteration 42:  (EM) log likelihood =  -10833.3656140929&#34;
+[1] &#34;Iteration 43:  (EM) log likelihood =  -10832.3653692696&#34;
+[1] &#34;Iteration 44:  (EM) log likelihood =  -10831.6615671713&#34;
+[1] &#34;Iteration 45:  (EM) log likelihood =  -10831.1717154442&#34;
+[1] &#34;Iteration 46:  (EM) log likelihood =  -10830.8337001257&#34;
+[1] &#34;Iteration 47:  (EM) log likelihood =  -10830.6020348532&#34;
+[1] &#34;Iteration 48:  (EM) log likelihood =  -10830.4441023375&#34;
+[1] &#34;Iteration 49:  (EM) log likelihood =  -10830.3368839103&#34;
+[1] &#34;Iteration 50:  (EM) log likelihood =  -10830.2643317552&#34;
+[1] &#34;Iteration 51:  (EM) log likelihood =  -10830.2153621249&#34;
+[1] &#34;Iteration 52:  (EM) log likelihood =  -10830.1823748483&#34;
+[1] &#34;Iteration 53:  (EM) log likelihood =  -10830.1601874817&#34;
+[1] &#34;Iteration 54:  (EM) log likelihood =  -10830.1452814772&#34;
+[1] &#34;Iteration 55:  (EM) log likelihood =  -10830.1352759985&#34;
+[1] &#34;Iteration 56:  (EM) log likelihood =  -10830.1285642526&#34;
+[1] &#34;hit tolerance&#34;
+[1] &#34;-----------------------------------&#34;
+[1] &#34;draw:  4&#34;
+[1] &#34;!!!!!!!!!!!!!!!!!!!!dangerous prior!!!!!!!&#34;
+[1] 0.52066 0.00772 0.47162
+[1] &#34;-----------------------------------&#34;
+[1] &#34;draw:  5&#34;
+[1] &#34;Iteration 1:  (EM) log likelihood =  -17923.6363460463&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -11774.7610328643&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -11506.9259755839&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -11374.4307912216&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -11316.4905234757&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -11291.2806461303&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -11276.3120455555&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -11264.3713976136&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -11253.2148481292&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -11242.0742692319&#34;
+[1] &#34;Iteration 11:  (EM) log likelihood =  -11230.6743897026&#34;
+[1] &#34;Iteration 12:  (EM) log likelihood =  -11218.935339671&#34;
+[1] &#34;Iteration 13:  (EM) log likelihood =  -11206.8705584396&#34;
+[1] &#34;Iteration 14:  (EM) log likelihood =  -11194.5436910248&#34;
+[1] &#34;Iteration 15:  (EM) log likelihood =  -11182.0429916188&#34;
+[1] &#34;Iteration 16:  (EM) log likelihood =  -11169.4617450725&#34;
+[1] &#34;Iteration 17:  (EM) log likelihood =  -11156.8836274953&#34;
+[1] &#34;Iteration 18:  (EM) log likelihood =  -11144.3744560337&#34;
+[1] &#34;Iteration 19:  (EM) log likelihood =  -11131.9807757364&#34;
+[1] &#34;Iteration 20:  (EM) log likelihood =  -11119.7336885903&#34;
+[1] &#34;Iteration 21:  (EM) log likelihood =  -11107.6548188107&#34;
+[1] &#34;Iteration 22:  (EM) log likelihood =  -11095.7611704486&#34;
+[1] &#34;Iteration 23:  (EM) log likelihood =  -11084.0668271693&#34;
+[1] &#34;Iteration 24:  (EM) log likelihood =  -11072.5811256159&#34;
+[1] &#34;Iteration 25:  (EM) log likelihood =  -11061.3042864524&#34;
+[1] &#34;Iteration 26:  (EM) log likelihood =  -11050.2224697416&#34;
+[1] &#34;Iteration 27:  (EM) log likelihood =  -11039.3054232938&#34;
+[1] &#34;Iteration 28:  (EM) log likelihood =  -11028.5111655394&#34;
+[1] &#34;Iteration 29:  (EM) log likelihood =  -11017.799925945&#34;
+[1] &#34;Iteration 30:  (EM) log likelihood =  -11007.1492465434&#34;
+[1] &#34;Iteration 31:  (EM) log likelihood =  -10996.5539491253&#34;
+[1] &#34;Iteration 32:  (EM) log likelihood =  -10986.0087241469&#34;
+[1] &#34;Iteration 33:  (EM) log likelihood =  -10975.4901442712&#34;
+[1] &#34;Iteration 34:  (EM) log likelihood =  -10964.9496227131&#34;
+[1] &#34;Iteration 35:  (EM) log likelihood =  -10954.3182139957&#34;
+[1] &#34;Iteration 36:  (EM) log likelihood =  -10943.5269771314&#34;
+[1] &#34;Iteration 37:  (EM) log likelihood =  -10932.5469029085&#34;
+[1] &#34;Iteration 38:  (EM) log likelihood =  -10921.4312949862&#34;
+[1] &#34;Iteration 39:  (EM) log likelihood =  -10910.3259353217&#34;
+[1] &#34;Iteration 40:  (EM) log likelihood =  -10899.4400069205&#34;
+[1] &#34;Iteration 41:  (EM) log likelihood =  -10889.0014329475&#34;
+[1] &#34;Iteration 42:  (EM) log likelihood =  -10879.2171819147&#34;
+[1] &#34;Iteration 43:  (EM) log likelihood =  -10870.2524963237&#34;
+[1] &#34;Iteration 44:  (EM) log likelihood =  -10862.2312423499&#34;
+[1] &#34;Iteration 45:  (EM) log likelihood =  -10855.2420356107&#34;
+[1] &#34;Iteration 46:  (EM) log likelihood =  -10849.3332813385&#34;
+[1] &#34;Iteration 47:  (EM) log likelihood =  -10844.4985102234&#34;
+[1] &#34;Iteration 48:  (EM) log likelihood =  -10840.6693729327&#34;
+[1] &#34;Iteration 49:  (EM) log likelihood =  -10837.7268862102&#34;
+[1] &#34;Iteration 50:  (EM) log likelihood =  -10835.5248093417&#34;
+[1] &#34;Iteration 51:  (EM) log likelihood =  -10833.9132751164&#34;
+[1] &#34;Iteration 52:  (EM) log likelihood =  -10832.7554477462&#34;
+[1] &#34;Iteration 53:  (EM) log likelihood =  -10831.9359214126&#34;
+[1] &#34;Iteration 54:  (EM) log likelihood =  -10831.3627452674&#34;
+[1] &#34;Iteration 55:  (EM) log likelihood =  -10830.9656561762&#34;
+[1] &#34;Iteration 56:  (EM) log likelihood =  -10830.6926139112&#34;
+[1] &#34;Iteration 57:  (EM) log likelihood =  -10830.5059722176&#34;
+[1] &#34;Iteration 58:  (EM) log likelihood =  -10830.3789802842&#34;
+[1] &#34;Iteration 59:  (EM) log likelihood =  -10830.292887125&#34;
+[1] &#34;Iteration 60:  (EM) log likelihood =  -10830.2346860641&#34;
+[1] &#34;Iteration 61:  (EM) log likelihood =  -10830.1954273967&#34;
+[1] &#34;Iteration 62:  (EM) log likelihood =  -10830.168991211&#34;
+[1] &#34;Iteration 63:  (EM) log likelihood =  -10830.1512128169&#34;
+[1] &#34;Iteration 64:  (EM) log likelihood =  -10830.1392687065&#34;
+[1] &#34;Iteration 65:  (EM) log likelihood =  -10830.1312502263&#34;
+[1] &#34;hit tolerance&#34;
+[1] &#34;===================================&#34;
+[1] &#34;===================================&#34;
+[1] &#34;Fitting Full Model: &#34;
+[1] &#34;Iteration 1:  (EM) log likelihood =  -10830.1234289522&#34;
+[1] &#34;Iteration 2:  (EM) log likelihood =  -10830.1204906397&#34;
+[1] &#34;Iteration 3:  (EM) log likelihood =  -10830.118568312&#34;
+[1] &#34;Iteration 4:  (EM) log likelihood =  -10830.1173102687&#34;
+[1] &#34;Iteration 5:  (EM) log likelihood =  -10830.1164866491&#34;
+[1] &#34;Iteration 6:  (EM) log likelihood =  -10830.1159472111&#34;
+[1] &#34;Iteration 7:  (EM) log likelihood =  -10830.115593737&#34;
+[1] &#34;Iteration 8:  (EM) log likelihood =  -10830.115362003&#34;
+[1] &#34;Iteration 9:  (EM) log likelihood =  -10830.1152100007&#34;
+[1] &#34;Iteration 10:  (EM) log likelihood =  -10830.1151102423&#34;
+[1] &#34;hit tolerance&#34;
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>paramTrue <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(<span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>),<span style="color:#a6e22e">cbind</span>(component_coef1, component_coef2, component_coef3), component_sd, priorTrue)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">rownames</span>(paramTrue) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;b0&#34;</span>, <span style="color:#e6db74">&#34;b1&#34;</span>, <span style="color:#e6db74">&#34;b2&#34;</span>, <span style="color:#e6db74">&#34;sd&#34;</span>, <span style="color:#e6db74">&#34;prior&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">colnames</span>(paramTrue) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;comp1&#34;</span>, <span style="color:#e6db74">&#34;comp2&#34;</span>, <span style="color:#e6db74">&#34;comp3&#34;</span>)
+</span></span><span style="display:flex;"><span>paramTrue <span style="color:#f92672">&lt;-</span> paramTrue[, <span style="color:#a6e22e">order</span>(paramTrue[<span style="color:#e6db74">&#34;prior&#34;</span>,])]
+</span></span><span style="display:flex;"><span>paramTrue
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>paramEst <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(<span style="color:#a6e22e">matrix</span>(fmmRes<span style="color:#f92672">$</span>coefficients[1<span style="color:#f92672">:</span><span style="color:#ae81ff">9</span>], ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>), fmmRes<span style="color:#f92672">$</span>coefficients[10<span style="color:#f92672">:</span><span style="color:#ae81ff">12</span>], fmmRes<span style="color:#f92672">$</span>coefficients[13<span style="color:#f92672">:</span><span style="color:#ae81ff">15</span>])
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">rownames</span>(paramEst) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;b0&#34;</span>, <span style="color:#e6db74">&#34;b1&#34;</span>, <span style="color:#e6db74">&#34;b2&#34;</span>, <span style="color:#e6db74">&#34;sd&#34;</span>, <span style="color:#e6db74">&#34;prior&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">colnames</span>(paramEst) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;comp1&#34;</span>, <span style="color:#e6db74">&#34;comp2&#34;</span>, <span style="color:#e6db74">&#34;comp3&#34;</span>)
+</span></span><span style="display:flex;"><span>paramEst <span style="color:#f92672">&lt;-</span> paramEst[, <span style="color:#a6e22e">order</span>(paramEst[<span style="color:#e6db74">&#34;prior&#34;</span>,])]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>paramEstWithSE <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(<span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">paste</span>(<span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>coefficients[1<span style="color:#f92672">:</span><span style="color:#ae81ff">12</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>), <span style="color:#e6db74">&#34;(&#34;</span>, <span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>se, digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>), <span style="color:#e6db74">&#34;)&#34;</span>, sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>), ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>), <span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>coefficients[10<span style="color:#f92672">:</span><span style="color:#ae81ff">12</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>bHatEst <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">paste</span>(<span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>coefficients[1<span style="color:#f92672">:</span><span style="color:#ae81ff">9</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>), <span style="color:#e6db74">&#34;(&#34;</span>, <span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>se[1<span style="color:#f92672">:</span><span style="color:#ae81ff">9</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>), <span style="color:#e6db74">&#34;)&#34;</span>, sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>), ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>sdEst <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">matrix</span>(<span style="color:#a6e22e">paste</span>(<span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>coefficients[10<span style="color:#f92672">:</span><span style="color:#ae81ff">12</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>), <span style="color:#e6db74">&#34;(&#34;</span>, <span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>se[10<span style="color:#f92672">:</span><span style="color:#ae81ff">12</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>), <span style="color:#e6db74">&#34;)&#34;</span>, sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>), ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>paramEstWithSE <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(bHatEst, sdEst, <span style="color:#a6e22e">round</span>(fmmRes<span style="color:#f92672">$</span>coefficients[13<span style="color:#f92672">:</span><span style="color:#ae81ff">15</span>], digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>))
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">rownames</span>(paramEstWithSE) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;b0&#34;</span>, <span style="color:#e6db74">&#34;b1&#34;</span>, <span style="color:#e6db74">&#34;b2&#34;</span>, <span style="color:#e6db74">&#34;sd&#34;</span>, <span style="color:#e6db74">&#34;prior&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">colnames</span>(paramEstWithSE) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;comp1&#34;</span>, <span style="color:#e6db74">&#34;comp2&#34;</span>, <span style="color:#e6db74">&#34;comp3&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># paramEstWithSE &lt;- paramEstWithSE[, order(paramEstWithSE[&#34;prior&#34;,])]</span>
+</span></span><span style="display:flex;"><span>paramEstWithSE <span style="color:#f92672">&lt;-</span> paramEstWithSE[, <span style="color:#a6e22e">order</span>(fmmRes<span style="color:#f92672">$</span>coefficients[13<span style="color:#f92672">:</span><span style="color:#ae81ff">15</span>])]
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># paramEstWithSE</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>knitr<span style="color:#f92672">::</span><span style="color:#a6e22e">kable</span>(paramTrue, align<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;c&#34;</span>, caption<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;各参数的实际值&#34;</span>, digits<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>)
+</span></span></code></pre></div><p>Table: 各参数的实际值</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:center">comp1</th>
+<th style="text-align:center">comp2</th>
+<th style="text-align:center">comp3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">b0</td>
+<td style="text-align:center">0.000</td>
+<td style="text-align:center">0.000</td>
+<td style="text-align:center">0.000</td>
+</tr>
+<tr>
+<td style="text-align:left">b1</td>
+<td style="text-align:center">0.300</td>
+<td style="text-align:center">-0.140</td>
+<td style="text-align:center">0.730</td>
+</tr>
+<tr>
+<td style="text-align:left">b2</td>
+<td style="text-align:center">0.640</td>
+<td style="text-align:center">0.830</td>
+<td style="text-align:center">0.240</td>
+</tr>
+<tr>
+<td style="text-align:left">sd</td>
+<td style="text-align:center">0.707</td>
+<td style="text-align:center">0.548</td>
+<td style="text-align:center">0.949</td>
+</tr>
+<tr>
+<td style="text-align:left">prior</td>
+<td style="text-align:center">0.200</td>
+<td style="text-align:center">0.300</td>
+<td style="text-align:center">0.500</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>knitr<span style="color:#f92672">::</span><span style="color:#a6e22e">kable</span>(paramEstWithSE, align<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;c&#34;</span>, caption<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;估计值（标准误）&#34;</span>)
+</span></span></code></pre></div><p>Table: 估计值（括号中为相应的标准误）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:center">comp3</th>
+<th style="text-align:center">comp2</th>
+<th style="text-align:center">comp1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">b0</td>
+<td style="text-align:center">0.0162(0.1201)</td>
+<td style="text-align:center">0.0532(0.0591)</td>
+<td style="text-align:center">-0.0699(0.0773)</td>
+</tr>
+<tr>
+<td style="text-align:left">b1</td>
+<td style="text-align:center">0.3051(0.0108)</td>
+<td style="text-align:center">-0.1446(0.0059)</td>
+<td style="text-align:center">0.7376(0.0072)</td>
+</tr>
+<tr>
+<td style="text-align:left">b2</td>
+<td style="text-align:center">0.6281(0.0125)</td>
+<td style="text-align:center">0.8261(0.0067)</td>
+<td style="text-align:center">0.244(0.0094)</td>
+</tr>
+<tr>
+<td style="text-align:left">sd</td>
+<td style="text-align:center">0.6473(0.0299)</td>
+<td style="text-align:center">0.5536(0.0124)</td>
+<td style="text-align:center">0.9785(0.0308)</td>
+</tr>
+<tr>
+<td style="text-align:left">prior</td>
+<td style="text-align:center">0.202</td>
+<td style="text-align:center">0.294</td>
+<td style="text-align:center">0.504</td>
+</tr>
+</tbody>
+</table>
+
+    </article>
+</main>
+
+
+
+
+
+
