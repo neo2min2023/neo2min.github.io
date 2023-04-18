@@ -6,7 +6,16 @@
     <description>Recent content in Posts on Research Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 18 Apr 2023 17:55:43 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 18 Apr 2023 20:06:21 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MixtureDist_vs_sumOfRV</title>
+      <link>https:neo2min2023.github.io /posts/fmm/mixturedist_vs_sumofrv/</link>
+      <pubDate>Tue, 18 Apr 2023 20:06:21 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/fmm/mixturedist_vs_sumofrv/</guid>
+      <description>pdf of weighted sum of normal pdfs VS pdf of weighted sum of normally distributed random variables. xs &amp;lt;- seq(-6, 10, by=0.01) sigma1 &amp;lt;- 1 sigma2 &amp;lt;- 2 mu1 &amp;lt;- -1 mu2 &amp;lt;- 3 pdf1 &amp;lt;- 1/sqrt((2*pi*sigma1^2)) * exp(-1/(2*sigma1^2) * (xs - mu1)^2) pdf2 &amp;lt;- 1/sqrt((2*pi*sigma2^2)) * exp(-1/(2*sigma2^2) * (xs - mu2)^2) omega1 &amp;lt;- 0.2 omega2 &amp;lt;- 0.8 pdf1_weighted &amp;lt;- omega1 * pdf1 pdf2_weighted &amp;lt;- omega2 * pdf2 pdf_mixed &amp;lt;- pdf1_weighted + pdf2_weighted mu_sum &amp;lt;- omega1 * mu1 + omega2 * mu2 sigma_sum &amp;lt;- sqrt(omega1^2 * sigma1^2 + omega2^2 * sigma2^2) pdf_sum &amp;lt;- 1/sqrt((2*pi*sigma_sum^2)) * exp(-1/(2*sigma_sum^2) * (xs - mu_sum)^2) sampleDf &amp;lt;- data.</description>
+    </item>
+    
     <item>
       <title>EM_simulation</title>
       <link>https:neo2min2023.github.io /posts/fmm/em_simulation/</link>
