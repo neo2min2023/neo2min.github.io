@@ -2,19 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https:neo2min2023.github.io /</loc>
-    <lastmod>2023-04-16T23:04:57+08:00</lastmod>
-  </url><url>
-    <loc>https:neo2min2023.github.io /posts/hugo_workflow/</loc>
-    <lastmod>2023-04-16T23:04:57+08:00</lastmod>
+    <loc>https:neo2min2023.github.io /posts/siterelated/lyx2markdown/</loc>
+    <lastmod>2023-04-18T11:22:17+08:00</lastmod>
   </url><url>
     <loc>https:neo2min2023.github.io /posts/</loc>
+    <lastmod>2023-04-18T11:22:17+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /</loc>
+    <lastmod>2023-04-18T11:22:17+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /posts/fmm/fmm_simp/</loc>
+    <lastmod>2023-04-17T21:57:33+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /posts/fmm/fmm_original/</loc>
+    <lastmod>2023-04-17T08:10:33+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /posts/siterelated/hugo_workflow/</loc>
     <lastmod>2023-04-16T23:04:57+08:00</lastmod>
   </url><url>
-    <loc>https:neo2min2023.github.io /posts/math_code_demo/</loc>
+    <loc>https:neo2min2023.github.io /posts/siterelated/math_code_demo/</loc>
     <lastmod>2023-04-16T09:26:27+08:00</lastmod>
   </url><url>
-    <loc>https:neo2min2023.github.io /posts/my-first-post/</loc>
+    <loc>https:neo2min2023.github.io /posts/siterelated/my-first-post/</loc>
     <lastmod>2023-04-16T09:20:29+08:00</lastmod>
   </url><url>
     <loc>https:neo2min2023.github.io /categories/</loc>

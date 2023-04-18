@@ -1,39 +1,75 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>EM算法和有限混合模型</title>
+    <title>Research Notes</title>
     <link>https:neo2min2023.github.io /</link>
-    <description>Recent content on EM算法和有限混合模型</description>
+    <description>Recent content on Research Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 16 Apr 2023 23:04:57 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 18 Apr 2023 11:22:17 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>convert lyx to markdown file</title>
+      <link>https:neo2min2023.github.io /posts/siterelated/lyx2markdown/</link>
+      <pubDate>Tue, 18 Apr 2023 11:22:17 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/siterelated/lyx2markdown/</guid>
+      <description>Convert lyx file to latex automatically Combine lyx and entr, we get a shell command to automatically convert lyx to latex and convert it to markdown file to deploy in hugo.
+ls fmm.lyx | entr -s &amp;#34;lyx -e xetex fmm.lyx &amp;amp;&amp;amp; pandoc -f latex -t markdown fmm.tex -o fmm.md &amp;amp;&amp;amp; echo markdown file updated&amp;#34; The default pandoc command convert displayed math in latex as a block enclosed by $$, which causes trouble if the equation is too complicated to render for hugo, for example,</description>
+    </item>
+    
+    <item>
+      <title>fmm_simp</title>
+      <link>https:neo2min2023.github.io /posts/fmm/fmm_simp/</link>
+      <pubDate>Mon, 17 Apr 2023 21:57:33 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/fmm/fmm_simp/</guid>
+      <description>MLE for Normal densities Assumptions Our sample is made up of the first $n$ terms of an IID sequence ${X_{n}}$ of normal random variables having mean $\mu_{0}$ and variance $\sigma_{0}^{2}$.
+The probability density function of a generic term of the sequence is
+$$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$ The mean $\mu_{0}$ and the variance $\sigma_{0}^{2}$ are the two parameters that need to be estimated.
+The log-likelihood function log-likelihood function:
+$$\begin{aligned} L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp;amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\ &amp;amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\ \end{aligned}$$ .</description>
+    </item>
+    
+    <item>
+      <title>FMM_original</title>
+      <link>https:neo2min2023.github.io /posts/fmm/fmm_original/</link>
+      <pubDate>Mon, 17 Apr 2023 08:10:33 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/fmm/fmm_original/</guid>
+      <description>MLE for Normal densities Unconditional version adapted from
+https://www.statlect.com/fundamentals-of-statistics/normal-distribution-maximum-likelihood
+Assumptions Our sample is made up of the first $n$ terms of an IID sequence ${X_{n}}$ of normal random variables having mean $\mu_{0}$ and variance $\sigma_{0}^{2}$.
+The probability density function of a generic term of the sequence is $$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$ The mean $\mu_{0}$ and the variance $\sigma_{0}^{2}$ are the two parameters that need to be estimated.
+The log-likelihood function $$\begin{aligned} L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp;amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\ &amp;amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\ \Rightarrow l(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp;amp; =\ln L(\mu,\sigma^{2};x_{1},\ldots x_{n})\\ &amp;amp; =\ln\Bigg[(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\Bigg]\\ &amp;amp; =-\frac{n}{2}\ln(2\pi\sigma^{2})-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x_{i}-\mu)^{2}\\ &amp;amp; =-\frac{n}{2}\ln(2\pi)-\dfrac{n}{2}\ln\sigma^{2}-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x_{i}-\mu)^{2} \end{aligned}$$ ML estimator $$\max_{\mu,\sigma^{2}}l(\mu,\sigma^{2};x_{1},\ldots x_{n})$$</description>
+    </item>
+    
     <item>
       <title>Hugo_workflow</title>
-      <link>https:neo2min2023.github.io /posts/hugo_workflow/</link>
+      <link>https:neo2min2023.github.io /posts/siterelated/hugo_workflow/</link>
       <pubDate>Sun, 16 Apr 2023 23:04:57 +0800</pubDate>
       
-      <guid>https:neo2min2023.github.io /posts/hugo_workflow/</guid>
+      <guid>https:neo2min2023.github.io /posts/siterelated/hugo_workflow/</guid>
       <description>Firstly, start two repos named researchNotes and neo2min2023.github.io on github.
 Build a website locally build site and push to github # pwd is projects hugo new site researchNotes cd researchNotes git init git add remote https://github.com/neo2min2023/researchNotes.git git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke echo &amp;#34;theme = &amp;#39;ananke&amp;#39;&amp;#34; &amp;gt;&amp;gt; config.toml hugo server git add . git commit -m &amp;#39;init commit&amp;#39; git push -u origin master # cd .. git clone https://github.com/neo2min2023/neo2min2023.github.io.git cd neo2min2023.github.io git checkout -b main touch readme git add .</description>
     </item>
     
     <item>
       <title>math typesetting in hugo</title>
-      <link>https:neo2min2023.github.io /posts/math_code_demo/</link>
+      <link>https:neo2min2023.github.io /posts/siterelated/math_code_demo/</link>
       <pubDate>Sun, 16 Apr 2023 09:26:27 +0800</pubDate>
       
-      <guid>https:neo2min2023.github.io /posts/math_code_demo/</guid>
+      <guid>https:neo2min2023.github.io /posts/siterelated/math_code_demo/</guid>
       <description>Task and solution Hugo can process math typesetting with the help of Katex, which can be achieved by a few steps of configuration.
 When using ananke theme, one can
 copy the following code from Katex website to theme/ananke/layout/partials/katex.html: &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css&amp;#34; integrity=&amp;#34;sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js&amp;#34; integrity=&amp;#34;sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js&amp;#34; integrity=&amp;#34;sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script&amp;gt; document.addEventListener(&amp;#34;DOMContentLoaded&amp;#34;, function() { renderMathInElement(document.body, { // customised options // • auto-render specific keys, e.g.: delimiters: [ {left: &amp;#39;$$&amp;#39;, right: &amp;#39;$$&amp;#39;, display: true}, {left: &amp;#39;$&amp;#39;, right: &amp;#39;$&amp;#39;, display: false}, {left: &amp;#39;\\(&amp;#39;, right: &amp;#39;\\)&amp;#39;, display: false}, {left: &amp;#39;\\[&amp;#39;, right: &amp;#39;\\]&amp;#39;, display: true} ], // • rendering keys, e.</description>
     </item>
     
     <item>
-      <title>My First Post</title>
-      <link>https:neo2min2023.github.io /posts/my-first-post/</link>
+      <title>markdown basic syntax</title>
+      <link>https:neo2min2023.github.io /posts/siterelated/my-first-post/</link>
       <pubDate>Sun, 16 Apr 2023 09:20:29 +0800</pubDate>
       
-      <guid>https:neo2min2023.github.io /posts/my-first-post/</guid>
+      <guid>https:neo2min2023.github.io /posts/siterelated/my-first-post/</guid>
       <description>This is a header some content
 bold text
 a list:

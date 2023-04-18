@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FMM_original | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+     
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js" integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+ 
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">FMM_original</span></h1>
+
+<h2 class="date">2023/04/17</h2>
+</div>
+
+<main>
+    <article>
+    <header>
+        <h1>FMM_original</h1>
+    </header>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#mle-for-normal-densities">MLE for Normal densities</a>
+      <ol>
+        <li><a href="#unconditional-version">Unconditional version</a>
+          <ol>
+            <li><a href="#assumptions">Assumptions</a></li>
+            <li><a href="#the-log-likelihood-function">The log-likelihood function</a></li>
+            <li><a href="#ml-estimator">ML estimator</a></li>
+            <li><a href="#asympotic-variance">Asympotic variance</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+    </aside>
+        <h1 id="mle-for-normal-densities">MLE for Normal densities</h1>
+<h2 id="unconditional-version">Unconditional version</h2>
+<p>adapted from</p>
+<p><a href="https://www.statlect.com/fundamentals-of-statistics/normal-distribution-maximum-likelihood">https://www.statlect.com/fundamentals-of-statistics/normal-distribution-maximum-likelihood</a></p>
+<h3 id="assumptions">Assumptions</h3>
+<p>Our sample is made up of the first $n$ terms of an IID sequence
+${X_{n}}$ of normal random variables having mean $\mu_{0}$ and
+variance $\sigma_{0}^{2}$.</p>
+<p>The probability density function of a generic term of the sequence is
+$$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$
+The mean $\mu_{0}$ and the variance $\sigma_{0}^{2}$ are the two
+parameters that need to be estimated.</p>
+<h3 id="the-log-likelihood-function">The log-likelihood function</h3>
+ $$\begin{aligned}
+L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\
+ &amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\
+\Rightarrow l(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp; =\ln L(\mu,\sigma^{2};x_{1},\ldots x_{n})\\
+ &amp; =\ln\Bigg[(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\Bigg]\\
+ &amp; =-\frac{n}{2}\ln(2\pi\sigma^{2})-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x_{i}-\mu)^{2}\\
+ &amp; =-\frac{n}{2}\ln(2\pi)-\dfrac{n}{2}\ln\sigma^{2}-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x_{i}-\mu)^{2}
+\end{aligned}$$ 
+
+<h3 id="ml-estimator">ML estimator</h3>
+<p>$$\max_{\mu,\sigma^{2}}l(\mu,\sigma^{2};x_{1},\ldots x_{n})$$</p>
+<p>FOC:
+ $$\begin{aligned}
+\dfrac{\partial l}{\partial\mu} &amp; =-\dfrac{1}{2\widehat{\sigma^{2}}}\sum_{i=1}^{n}2(x_{i}-\widehat{\mu})(-1)=\dfrac{1}{\widehat{\sigma^{2}}}\sum_{i=1}^{n}(x_{i}-\widehat{\mu})=0\\
+\Rightarrow0 &amp; =\sum_{i=1}^{n}(x_{i}-\widehat{\mu})=\sum_{i=1}^{n}x_{i}-n\widehat{\mu}\\
+\Rightarrow\widehat{\mu} &amp; =\dfrac{1}{n}\sum_{i=1}^{n}x_{i}\\
+\dfrac{\partial l}{\partial\widehat{\sigma^{2}}} &amp; =-\dfrac{n}{2\widehat{\sigma^{2}}}&#43;\dfrac{1}{2\widehat{\sigma^{2}}^{2}}\sum_{i=1}^{n}(x_{i}-\widehat{\mu})^{2}=-\dfrac{1}{2\widehat{\sigma^{2}}}\bigg(n-\dfrac{1}{\widehat{\sigma^{2}}}\sum_{i=1}^{n}(x_{i}-\widehat{\mu})^{2}\bigg)=0\\
+\Rightarrow &amp; \widehat{\sigma^{2}}=\dfrac{1}{n}\sum_{i=1}^{n}(x_{i}-\widehat{\mu})^{2}
+\end{aligned}$$ 
+</p>
+<h3 id="asympotic-variance">Asympotic variance</h3>
+<p>The first entry of the score vector
+$\nabla_{\mu,\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)$
+is</p>
+ $$\begin{aligned} &amp; \frac{\partial}{\partial\mu}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\\
+= &amp; \frac{\partial}{\partial\mu}\ln\left(\left(2\pi\sigma^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(X_{j}-\mu\right)^{2}}{\sigma^{2}}\right)\right)\\
+= &amp; \frac{\partial}{\partial\mu}\left[-\frac{1}{2}\ln(2\pi)-\frac{1}{2}\ln\left(\sigma^{2}\right)-\frac{1}{2}\frac{\left(X_{j}-\mu\right)^{2}}{\sigma^{2}}\right]\\
+= &amp; \frac{\left(X_{j}-\mu\right)}{\sigma^{2}}
+\end{aligned}$$ 
+
+<p>The second entry of the score vector is</p>
+ $$\begin{aligned} &amp; \frac{\partial}{\partial\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\\
+= &amp; \frac{\partial}{\partial\sigma^{2}}\left[-\frac{1}{2}\ln(2\pi)-\frac{1}{2}\ln\left(\sigma^{2}\right)-\frac{1}{2}\frac{\left(X_{j}-\mu\right)^{2}}{\sigma^{2}}\right]\\
+= &amp; -\frac{1}{2\sigma^{2}}&#43;\frac{1}{2}\frac{\left(X_{j}-\mu\right)^{2}}{\left(\sigma^{2}\right)^{2}}
+\end{aligned}$$ 
+
+<p>In order to compute the Hessian</p>
+
+  <div class="equation leqno" >$$\nabla_{\mu,\sigma^{2}}^{2}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)=\left[\begin{array}{cc}
+\frac{\partial^{2}}{\partial\mu^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right) &amp; \frac{\partial}{\partial\mu}\frac{\partial}{\partial\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\\
+\frac{\partial}{\partial\sigma^{2}}\frac{\partial}{\partial\mu}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right) &amp; \frac{\partial^{2}}{\partial\left\langle \sigma^{2}\right)^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)
+\end{array}\right]$$
+  </div>
+
+<p>we need to compute all second order partial derivatives. We have</p>
+ $$\begin{aligned}\frac{\partial^{2}}{\partial\mu^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right) &amp; =\frac{\partial}{\partial\mu}\left[\frac{\partial}{\partial\mu}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\right]\\
+ &amp; =\frac{\partial}{\partial\mu}\left[\frac{\left(X_{j}-\mu\right)}{\sigma^{2}}\right]\\
+ &amp; =-\frac{1}{\sigma^{2}}
+\end{aligned}$$ 
+
+<p>and</p>
+ $$\begin{aligned}\frac{\partial^{2}}{\partial\left(\sigma^{2}\right)^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right) &amp; =\frac{\partial}{\partial\sigma^{2}}\frac{\partial}{\partial\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\\
+ &amp; =\frac{\partial}{\partial\sigma^{2}}\left[-\frac{1}{2\sigma^{2}}&#43;\frac{1}{2}\frac{\left(X_{j}-\mu\right)^{2}}{\left(\sigma^{2}\right)^{2}}\right]\\
+ &amp; =\frac{1}{2\left(\sigma^{2}\right)^{2}}-\frac{\left(X_{j}-\mu\right)^{2}}{\left(\sigma^{2}\right)^{3}}
+\end{aligned}$$ 
+
+<p>Finally,</p>
+ $$\begin{aligned}\frac{\partial}{\partial\sigma^{2}}\frac{\partial}{\partial\mu}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right) &amp; =\frac{\partial}{\partial\sigma^{2}}\left[\frac{\partial}{\partial\mu}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\right]\\
+ &amp; =\frac{\partial}{\partial\sigma^{2}}\left[\frac{\left(X_{j}-\mu\right)}{\sigma^{2}}\right]\\
+ &amp; =-\frac{\left(X_{j}-\mu\right)}{\left(\sigma^{2}\right)^{2}}=\frac{\partial}{\partial\mu}\frac{\partial}{\partial\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)
+\end{aligned}$$ 
+
+<p>Therefore, the Hessisa is</p>
+<p>$$\nabla_{\mu,\sigma^{2}}^{2}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)=\left[\begin{array}{cc}
+-\frac{1}{\sigma^{2}} &amp; -\frac{\left(X_{j}-\mu\right)}{\left(\sigma^{2}\right)^{2}}\
+-\frac{\left(X_{j}-\mu\right)}{\left(\sigma^{2}\right)^{2}} &amp; \frac{1}{2\left(\sigma^{2}\right)^{2}}-\frac{\left(X_{j}-\mu\right)^{2}}{\left(\sigma^{2}\right)^{3}}
+\end{array}\right]$$</p>
+<p>By the information equality, we heve that</p>
+ $$\begin{aligned}
+Var\left[\nabla_{\mu,\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\Bigg|_{\mu=\mu_{0},\sigma^{2}=\sigma_{0}^{2}}\right] &amp; =-\mathrm{E}\left[\nabla_{\mu,\sigma^{2}}^{2}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\Bigg|_{\mu-\mu_{0},\sigma^{2}-\sigma_{0}^{2}}\right]\\
+ &amp; =\left[\begin{array}{cc}
+\frac{1}{\sigma^{2}} &amp; E\Bigg[\frac{\left(X_{j}-\mu\right)}{\left(\sigma^{2}\right)^{2}}\Bigg]\\
+E\Bigg[\frac{\left(X_{j}-\mu\right)}{\left(\sigma^{2}\right)^{2}}\Bigg] &amp; E\Bigg[\frac{\left(X_{j}-\mu\right)^{2}}{\left(\sigma^{2}\right)^{3}}\Bigg]-\frac{1}{2\left(\sigma^{2}\right)^{2}}
+\end{array}\right]\\
+ &amp; =\left[\begin{array}{cc}
+\frac{1}{\sigma^{2}} &amp; 0\\
+0 &amp; \frac{\sigma^{2}}{\left(\sigma^{2}\right)^{3}}-\frac{1}{2\left(\sigma^{2}\right)^{2}}
+\end{array}\right]\\
+ &amp; =\left[\begin{array}{cc}
+\frac{1}{\sigma^{2}} &amp; 0\\
+0 &amp; \frac{1}{2\left(\sigma^{2}\right)^{2}}
+\end{array}\right]
+\end{aligned}$$ 
+
+<p>As a consequence, the asymptotic covariance matrix is</p>
+
+  <div class="equation leqno" >$$\Bigg(Var\left[\nabla_{\mu,\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\Bigg|_{\mu=\mu_{0},\sigma^{2}=\sigma_{0}^{2}}\right]\Bigg)^{-1}=\left[\begin{array}{cc}
+\frac{1}{\sigma^{2}} &amp; 0\\
+0 &amp; \frac{1}{2\left(\sigma^{2}\right)^{2}}
+\end{array}\right]^{-1}=\left[\begin{array}{cc}
+\sigma^{2} &amp; 0\\
+0 &amp; 2\left(\sigma^{2}\right)^{2}
+\end{array}\right]$$
+  </div>
+
+<p>In other words, the distribution of the vector
+$(\widehat{\mu},\widehat{\sigma^{2}})^{T}$ can be approximated by a
+multivariate normal distribution with mean $(\mu,\sigma^{2})^{T}$and
+covariance matrix
+
+  <div class="equation leqno" >$$\left[\begin{array}{cc}
+\widehat{\sigma^{2}} &amp; 0\\
+0 &amp; 2\left(\widehat{\sigma^{2}}\right)^{2}
+\end{array}\right]$$
+  </div>
+</p>
+<p>align environment:
+ $$\begin{aligned} x &#43; y &amp;= 3 \\ x - y &amp;= 4 \end{aligned}$$ 
+
+is an system of linear equation.</p>
+
+  <div class="equation">$$ \begin{array} {lcl} L(p,w_i) &amp;=&amp; \dfrac{1}{N}\Sigma_{i=1}^N(\underbrace{f_r(x_2\rightarrow x_1 \rightarrow x_0)G(x_1\longleftrightarrow x_2)f_r(x_3\rightarrow x_2 \rightarrow x_1)}_{sample\, radiance\, evaluation\, in\, stage2} \\\\\\ &amp; &amp; \prod_{i=3}^{k-1}(\underbrace{\dfrac{f_r(x_{i&#43;1}\rightarrow x_i\rightarrow x_{i-1})cos\theta_{i\rightarrow i-1}}{p_w(x_i\rightarrow x_{i-1})}}_{stored\,in\,vertex\, during\, light\, path\, tracing\, in\, stage1})\dfrac{cos\theta_{k\rightarrow k-1}L_e(x_k\rightarrow x_{k-1})}{p_w(x_k \rightarrow x_{k-1})p_a(x_k)}) \end{array} $$
+  </div>
+
+    </article>
+</main>
+
+
+
+
+
+

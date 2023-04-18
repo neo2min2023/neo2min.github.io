@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>convert lyx to markdown file | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+     
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js" integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+ 
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">convert lyx to markdown file</span></h1>
+
+<h2 class="date">2023/04/18</h2>
+</div>
+
+<main>
+    <article>
+    <header>
+        <h1>convert lyx to markdown file</h1>
+    </header>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</a></li>
+        <li><a href="#use-panflute-to-better-understand-pandoc">Use panflute to better understand pandoc</a></li>
+        <li><a href="#convert-latex-to-markdown-using-lua-filter">Convert latex to markdown using lua filter</a></li>
+        <li><a href="#a-python-filter-converting-all-inline-to-display-math">A python filter converting all inline to display math</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+    </aside>
+        <h2 id="convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</h2>
+<p>Combine <code>lyx</code> and <code>entr</code>, we get a shell command to automatically convert lyx to latex and convert it to markdown file to deploy in hugo.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>ls fmm.lyx | entr -s <span style="color:#e6db74">&#34;lyx -e xetex fmm.lyx &amp;&amp; pandoc -f latex -t markdown fmm.tex -o fmm.md &amp;&amp; echo markdown file updated&#34;</span>
+</span></span></code></pre></div><p>The default pandoc command convert displayed math in latex as a block enclosed by $$, which causes trouble if the equation is too complicated to render for hugo, for example,</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-plain" data-lang="plain"><span style="display:flex;"><span>align environment: $$\begin{aligned} x + y &amp;= 3 \\ x - y &amp;= 4 \end{aligned}$$ is an system of linear equation.
+</span></span></code></pre></div><p>We need the solution in <a href="https:neo2min2023.github.io /posts/siterelated/math_code_demo/">previous post</a> to tackle this problem. A naive idea is to use regex tools like <code>sed</code> to replace all contents between each pair of $$ by either shortcode or code block, i.e.,</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-plain" data-lang="plain"><span style="display:flex;"><span>align environment: 
+</span></span><span style="display:flex;"><span> 
+$$\begin{aligned} x &#43; y &amp;= 3 \\ x - y &amp;= 4 \end{aligned}$$ 
+
+</span></span><span style="display:flex;"><span>is an system of linear equation.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>align environment: 
+</span></span><span style="display:flex;"><span>```katex
+</span></span><span style="display:flex;"><span>$$\begin{aligned} x + y &amp;= 3 \\ x - y &amp;= 4 \end{aligned}$$ 
+</span></span><span style="display:flex;"><span>\`\`\`
+</span></span><span style="display:flex;"><span>is an system of linear equation.
+</span></span></code></pre></div><p>If the latex document is not too complicated, we can use the following sed command to achieve this goal.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e">#!/bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">###########################################################################</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># match lines like &#34;FOC: \begin{alinged}...&#34;</span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^.\+\$\$\\begin{aligned.*$/p&#39;</span> FMM.md
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># break lines like &#34;FOC: \begin{alinged}...&#34; into 2 lines like</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># &#34;FOC: \n\begin{alinged}...&#34; </span>
+</span></span><span style="display:flex;"><span>sed <span style="color:#e6db74">&#39;s/^\(.\+\)\(\$\$\\begin{aligned.*\)$/\1\n\2/&#39;</span> FMM.md
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># match lines like &#34;...\end{alinged}is a system of eqns&#34;</span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^.*\\end{aligned}\$\$.\+$/p&#39;</span> FMM.md
+</span></span><span style="display:flex;"><span><span style="color:#75715e">###########sed -n &#39;/^.\+\\end{aligned}\$\$.\+$/p&#39; FMM.md</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># break lines like &#34;...\end{alinged}is a system of eqns&#34; into 2 lines like</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># &#34;...\end{alinged}\nis a system of eqns&#34; </span>
+</span></span><span style="display:flex;"><span>sed <span style="color:#e6db74">&#39;s/^\(.*\\end{aligned}\$\$\)\(.\+\)$/\1\n\2&#39;</span> FMM.md
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># check the result</span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^.\+\$\$\\begin{aligned.*$/p&#39;</span> FMM.md | sed <span style="color:#e6db74">&#39;s/^\(.\+\)\(\$\$\\begin{aligned.*\)$/\1\n\2/&#39;</span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^.*\\end{aligned}\$\$.\+$/p&#39;</span> FMM.md | sed <span style="color:#e6db74">&#39;s/^\(.*\\end{aligned}\$\$\)\(.\+\)$/\1\n\2/&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sed <span style="color:#e6db74">&#39;s/^\(.\+\)\(\$\$\\begin{aligned.*\)$/\1\n\2/&#39;</span> FMM.md | sed <span style="color:#e6db74">&#39;s/^\(.*\\end{aligned}\$\$\)\(.\+\)$/\1\n\2/&#39;</span> &gt; FMM_clean.md
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^\$\$\\begin{aligned}.*$/p&#39;</span> FMM_clean.md
+</span></span><span style="display:flex;"><span>sed <span style="color:#e6db74">&#39;s/^\(\$\$\\begin{aligned}\)\(.*\)$/{{\&lt; katex &gt;}} \1\2/&#39;</span> FMM_clean.md
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^\$\$\\begin{aligned}.*$/p&#39;</span> FMM_clean.md | sed <span style="color:#e6db74">&#39;s/^\(\$\$\\begin{aligned}\)\(.*\)$/{{\&lt; katex &gt;}} \1\2/&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sed -n <span style="color:#e6db74">&#39;/^.*\\end{aligned}\$\$$/p&#39;</span> FMM_clean.md | sed <span style="color:#e6db74">&#39;s/^\(.*\)\(\\end{aligned}\$\$\)$/\1\2 {{\&lt; \/katex &gt;}}/&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sed <span style="color:#e6db74">&#39;s/^\(\$\$\\begin{aligned}\)\(.*\)$/{{\&lt; katex &gt;}} \1\2/&#39;</span> FMM_clean.md |  sed <span style="color:#e6db74">&#39;s/^\(.*\)\(\\end{aligned}\$\$\)$/\1\2 {{\&lt; \/katex &gt;}}/&#39;</span> &gt; FMM_clean2.md
+</span></span></code></pre></div><p>The <a href="https://pandoc.org/filters.html">shortcoming</a> of this approach is that it is not general and prone to error. A better solution is to use pandoc filters, either <a href="https://pandoc.org/lua-filters.html">lua filter</a> or <a href="https://pypi.org/project/panflute">python filter</a>.</p>
+<h2 id="use-panflute-to-better-understand-pandoc">Use panflute to better understand pandoc</h2>
+<p>Before writing any filters for pandoc, it is probably a better idea to first understand how pandoc views a text file natively. Given a latex file, pandoc can convert it to its native representation by <code>pandoc -f latex -t native fmm_simp.tex</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-latex" data-lang="latex"><span style="display:flex;"><span><span style="color:#66d9ef">\documentclass</span>{article}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">\usepackage</span>{amssymb, amsmath}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">\begin</span>{document}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>the following: <span style="color:#66d9ef">\begin</span>{align} x + y &amp;= 3 <span style="color:#66d9ef">\\</span> x - y &amp;= 4 <span style="color:#66d9ef">\end</span>{align} is a system of linear equation.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">\end</span>{document}
+</span></span></code></pre></div><p>To view it with syntax highlighting, we can redirect the results to a json file and open it in neovim by  <code>pandoc -f latex -t native fmm_simp.tex &gt; fmm_simp.json</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[ <span style="color:#960050;background-color:#1e0010">Para</span>
+</span></span><span style="display:flex;"><span>    [ <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;the&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;following:&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Math</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">DisplayMath</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;\\begin{aligned}\n x + y &amp;= 3 \\\\ x - y &amp;= 4 \n\\end{aligned}&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;is&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;a&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;system&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;of&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;linear&#34;</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Space</span>
+</span></span><span style="display:flex;"><span>    , <span style="color:#960050;background-color:#1e0010">Str</span> <span style="color:#e6db74">&#34;equation.&#34;</span>
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>From the native representation, we can see that what we want to do is to insert a pandoc Str &ldquo;{{&lt; katex &gt;}}&rdquo; before the Math element with DisplayMath porperty and  a pandoc Str &ldquo;{{&lt; /katex &gt;}}&rdquo; after it.</p>
+<p>The description of pandoc&rsquo;s webpage of lua filter seems not very clear or intuitive to me, maybe because of my ignorance of Haskell language. But the <a href="http://scorreia.com/software/panflute/guide.html">documentation of <code>panflute</code></a> does help a lot in this respect. From what I know from their websites, I tested some code as below:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># import panflute as pf</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> panflute <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>doc <span style="color:#f92672">=</span> Doc(Para(Str(<span style="color:#e6db74">&#39;a&#39;</span>)))
+</span></span><span style="display:flex;"><span>doc
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p1 <span style="color:#f92672">=</span> Para(Str(<span style="color:#e6db74">&#39;Spam&#39;</span>), Space, Emph(Str(<span style="color:#e6db74">&#39;and&#39;</span>), Space, Str(<span style="color:#e6db74">&#39;eggs&#39;</span>)))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p2 <span style="color:#f92672">=</span> Para(Str(<span style="color:#e6db74">&#39;eggs&#39;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p3 <span style="color:#f92672">=</span> Plain(Emph(Str(<span style="color:#e6db74">&#39;eggs&#39;</span>)))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>doc <span style="color:#f92672">=</span> Doc(p1, p2, p3)
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>replace_keyword(<span style="color:#e6db74">&#39;eggs&#39;</span>, Str(<span style="color:#e6db74">&#39;ham&#39;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p4 <span style="color:#f92672">=</span> Para(Math(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">left[</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">begin</span><span style="color:#e6db74">{array}{cc}</span><span style="color:#ae81ff">\n\\</span><span style="color:#e6db74">widehat{</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">sigma^</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">} &amp; 0</span><span style="color:#ae81ff">\\\\\n</span><span style="color:#e6db74">0 &amp; 2</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">left(</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">widehat{</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">sigma^</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">}</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">right)^</span><span style="color:#e6db74">{2}</span><span style="color:#ae81ff">\n\\</span><span style="color:#e6db74">end</span><span style="color:#e6db74">{array}</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">right]&#34;</span>, format<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;DisplayMath&#34;</span>))
+</span></span><span style="display:flex;"><span>p4<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>m2 <span style="color:#f92672">=</span> Math(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">begin</span><span style="color:#e6db74">{aligned}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74"> x + y &amp;= 3 </span><span style="color:#ae81ff">\\\\</span><span style="color:#e6db74"> x - y &amp;= 4 </span><span style="color:#ae81ff">\n\\</span><span style="color:#e6db74">end</span><span style="color:#e6db74">{aligned}</span><span style="color:#e6db74">&#34;</span>, format<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;DisplayMath&#34;</span>)
+</span></span><span style="display:flex;"><span>m1 <span style="color:#f92672">=</span> Math(<span style="color:#e6db74">&#34;x^2+y^2=z^2&#34;</span>, format<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;InlineMath&#34;</span>)
+</span></span><span style="display:flex;"><span>p5 <span style="color:#f92672">=</span> Para(m2)
+</span></span><span style="display:flex;"><span>p5<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p00 <span style="color:#f92672">=</span> Para(m1, m2)
+</span></span><span style="display:flex;"><span>p00<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>p01 <span style="color:#f92672">=</span> Para(Str(<span style="color:#e6db74">&#34;align&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;environment:&#34;</span>), Space, m1, Str(<span style="color:#e6db74">&#34;align&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;environment:&#34;</span>), Space, m2, Space, Str(<span style="color:#e6db74">&#34;is&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;an&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;system&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;of&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;linear&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;equation.&#34;</span>))
+</span></span><span style="display:flex;"><span>p01<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>doc <span style="color:#f92672">=</span> Doc(p00, p01)
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>content 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">action_inline2display</span>(elem, doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Math):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> elem<span style="color:#f92672">.</span>format <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;InlineMath&#34;</span>:
+</span></span><span style="display:flex;"><span>            elem<span style="color:#f92672">.</span>format <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;DisplayMath&#34;</span>
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>content 
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>walk(action_inline2display)
+</span></span><span style="display:flex;"><span>doc<span style="color:#f92672">.</span>content 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p01<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> elem <span style="color:#f92672">in</span> p01<span style="color:#f92672">.</span>content:
+</span></span><span style="display:flex;"><span>    print(elem)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#######################################################################</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p01 <span style="color:#f92672">=</span> Para(Str(<span style="color:#e6db74">&#34;align&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;environment:&#34;</span>), Space, m1, Str(<span style="color:#e6db74">&#34;align&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;environment:&#34;</span>), Space, m2, Space, Str(<span style="color:#e6db74">&#34;is&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;an&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;system&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;of&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;linear&#34;</span>), Space, Str(<span style="color:#e6db74">&#34;equation.&#34;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> elem <span style="color:#f92672">in</span> p01<span style="color:#f92672">.</span>content:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Math):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Math.text: &#34;</span>)
+</span></span><span style="display:flex;"><span>        print(elem<span style="color:#f92672">.</span>text)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;New Math.text: &#34;</span>)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;{{ &lt;katex&gt; }}&#34;</span> <span style="color:#f92672">+</span> elem<span style="color:#f92672">.</span>text <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;{{ &lt;/katex&gt; }}&#34;</span>)
+</span></span><span style="display:flex;"><span>        print()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> elem<span style="color:#f92672">.</span>format <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;DisplayMath&#34;</span>:
+</span></span><span style="display:flex;"><span>            elem<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;{{ &lt;katex&gt; }}&#34;</span> <span style="color:#f92672">+</span> elem<span style="color:#f92672">.</span>text <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;{{ &lt;/katex&gt; }}&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p01<span style="color:#f92672">.</span>content
+</span></span></code></pre></div><p>From these code, a possible solution is to literally insert a Str element before the Math element with property DisplayMath, which can be readily done for a python list.</p>
+<p>It turns out that lua filter can accomplish this task more easily.</p>
+<h2 id="convert-latex-to-markdown-using-lua-filter">Convert latex to markdown using lua filter</h2>
+<p>From previous understanding of pandoc and panflute, we finally arrive at the following two lua filters named <code>katexMath.lua</code> and <code>katexMath.lua</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#75715e">-- katexMath.lua</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Math <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span> (elem)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> elem.mathtype <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;DisplayMath&#39;</span> <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>            pandoc.RawInline(<span style="color:#e6db74">&#39;markdown&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">```katex</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>),
+</span></span><span style="display:flex;"><span>            elem,
+</span></span><span style="display:flex;"><span>            pandoc.RawInline(<span style="color:#e6db74">&#39;markdown&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">```</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>),
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- katexMath2.lua</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Math <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span> (elem)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> elem.mathtype <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;DisplayMath&#39;</span> <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>            pandoc.RawInline(<span style="color:#e6db74">&#39;markdown&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{{</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">&lt; katex &gt;}}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>),
+</span></span><span style="display:flex;"><span>            elem,
+</span></span><span style="display:flex;"><span>            pandoc.RawInline(<span style="color:#e6db74">&#39;markdown&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{{</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">&lt; /katex &gt;}}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>),
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>,
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>To use them as lua filter for pandoc, we can</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>pandoc -s -f latex -t markdown -o fmm_lua.md fmm.tex --lua-filter katexMath.lua
+</span></span><span style="display:flex;"><span>pandoc -s -f latex -t markdown -o fmm_lua2.md fmm.tex --lua-filter katexMath2.lua
+</span></span></code></pre></div><h2 id="a-python-filter-converting-all-inline-to-display-math">A python filter converting all inline to display math</h2>
+<p>This script is adapted from panflute&rsquo;s official documentation, to run it as a pandoc filter, simply run the code <code>pandoc -f latex -t markdown -s -o fmm_py.md --filter inline2display.py fmm.tex</code> in a shell in which the corresponding python can import panflute package.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Pandoc filter using panflute
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># import panflute as pf</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> panflute <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">prepare</span>(doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">action0</span>(elem, doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Element) <span style="color:#f92672">and</span> doc<span style="color:#f92672">.</span>format <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;latex&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return None -&gt; element unchanged</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return [] -&gt; delete element</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">action01</span>(elem, doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Header):
+</span></span><span style="display:flex;"><span>        elem<span style="color:#f92672">.</span>level <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># replace all emphasized text with striked out text</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">action02</span>(elem, doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Emph):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Strikeout(<span style="color:#f92672">*</span>elem<span style="color:#f92672">.</span>content)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># remove all tables</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">action03</span>(elem, doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Table):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">action</span>(elem, doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> isinstance(elem, Math):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> elem<span style="color:#f92672">.</span>format <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;DisplayMath&#34;</span>:
+</span></span><span style="display:flex;"><span>            elem<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;{{ &lt;katex&gt; }}&#34;</span> <span style="color:#f92672">+</span> elem<span style="color:#f92672">.</span>text <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;{{ &lt;/katex&gt; }}&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">finalize</span>(doc):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>(doc<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># return pf.run_filter(action,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> run_filter(action, prepare<span style="color:#f92672">=</span>prepare, finalize<span style="color:#f92672">=</span>finalize, doc<span style="color:#f92672">=</span>doc) 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div>
+    </article>
+</main>
+
+
+
+
+
+

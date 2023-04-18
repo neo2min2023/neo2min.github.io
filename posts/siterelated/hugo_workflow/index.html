@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hugo_workflow | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Hugo_workflow</span></h1>
+
+<h2 class="date">2023/04/16</h2>
+</div>
+
+<main>
+    <article>
+    <header>
+        <h1>Hugo_workflow</h1>
+    </header>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#build-a-website-locally">Build a website locally</a></li>
+    <li><a href="#deploy-site-on-github">deploy site on github</a></li>
+  </ol>
+</nav>
+    </aside>
+        <p>Firstly, start two repos named <code>researchNotes</code> and <code>neo2min2023.github.io</code> on github.</p>
+<h1 id="build-a-website-locally">Build a website locally</h1>
+<ol>
+<li>build site and push to github</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># pwd is projects</span>
+</span></span><span style="display:flex;"><span>hugo new site researchNotes
+</span></span><span style="display:flex;"><span>cd researchNotes
+</span></span><span style="display:flex;"><span>git init
+</span></span><span style="display:flex;"><span>git add remote https://github.com/neo2min2023/researchNotes.git
+</span></span><span style="display:flex;"><span>git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;theme = &#39;ananke&#39;&#34;</span> &gt;&gt; config.toml
+</span></span><span style="display:flex;"><span>hugo server
+</span></span><span style="display:flex;"><span>git add .
+</span></span><span style="display:flex;"><span>git commit -m <span style="color:#e6db74">&#39;init commit&#39;</span>
+</span></span><span style="display:flex;"><span>git push -u origin master
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd .. 
+</span></span><span style="display:flex;"><span>git clone https://github.com/neo2min2023/neo2min2023.github.io.git
+</span></span><span style="display:flex;"><span>cd neo2min2023.github.io
+</span></span><span style="display:flex;"><span>git checkout -b main
+</span></span><span style="display:flex;"><span>touch readme
+</span></span><span style="display:flex;"><span>git add .
+</span></span><span style="display:flex;"><span>git commit -m <span style="color:#e6db74">&#39;add readme in main branch&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd ../researchNotes
+</span></span><span style="display:flex;"><span>rm public
+</span></span><span style="display:flex;"><span>git submodule add -b main git@gitee.com:neo2min/researchNotes.git public
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>hugo
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cd public
+</span></span><span style="display:flex;"><span>git remote -v
+</span></span><span style="display:flex;"><span>git add .
+</span></span><span style="display:flex;"><span>git commit -m <span style="color:#e6db74">&#39;first publishing&#39;</span>
+</span></span><span style="display:flex;"><span>git push origin main
+</span></span></code></pre></div><ol start="2">
+<li>add content and change config.toml</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>hugo new posts/my-first-post.md
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># change draft from true to false</span>
+</span></span></code></pre></div><ol start="3">
+<li>add Katex support</li>
+</ol>
+<h1 id="deploy-site-on-github">deploy site on github</h1>
+<p>In the Pages setting of the repo neo2min2023.github.io,</p>
+<ul>
+<li>choose Deploy from a branch,</li>
+<li>choose the main branch,</li>
+<li>from github add a new file named <code>CNAME</code>, add domain name <code>neomin.top</code> and commit</li>
+</ul>
+
+    </article>
+</main>
+
+
+
+
+
+
