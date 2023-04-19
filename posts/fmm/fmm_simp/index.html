@@ -6,29 +6,38 @@
     <title>fmm_simp | Research Notes</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/mathjax.css" />
     
-     
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js" integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    
+    
+    
+    
+    
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-          
-          
-          delimiters: [
-              {left: '$$', right: '$$', display: true},
-              {left: '$', right: '$', display: false},
-              {left: '\\(', right: '\\)', display: false},
-              {left: '\\[', right: '\\]', display: true}
-          ],
-          
-          throwOnError : false
-        });
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      tags: 'ams'
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
     });
 </script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
- 
+  
+
 
   </head>
 
@@ -43,58 +52,49 @@
 
     <h2>fmm_simp</h2>
     <h4>2023-04-17 21:57:33 &#43;0800 CST</h4>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#mle-for-normal-densities">MLE for Normal densities</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#assumptions">Assumptions</a></li>
+            <li><a href="#the-log-likelihood-function">The log-likelihood function</a></li>
+            <li><a href="#ml-estimator">ML estimator</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+    </aside>
     <hr>
     <h1 id="mle-for-normal-densities">MLE for Normal densities</h1>
 <h3 id="assumptions">Assumptions</h3>
-<p>Our sample is made up of the first $n$ terms of an IID sequence
-${X_{n}}$ of normal random variables having mean $\mu_{0}$ and
-variance $\sigma_{0}^{2}$.</p>
-<p>The probability density function of a generic term of the sequence is</p>
-
-  <div class="equation">$$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$
-  </div>
-<p>The mean $\mu_{0}$ and the variance $\sigma_{0}^{2}$ are the two
-parameters that need to be estimated.</p>
+<p>Our sample is made up of the first  <code>$n$</code>  terms of an IID sequence
+<code>$\{X_{n}\}$</code>  of normal random variables having mean  <code>$\mu_{0}$</code>
+and variance  <code>$\sigma_{0}^{2}$</code> .</p>
+<p>The probability density function of a generic term of the sequence is
+<code>$$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$</code>
+The mean  <code>$\mu_{0}$</code>  and the variance  <code>$\sigma_{0}^{2}$</code>  are the
+two parameters that need to be estimated.</p>
 <h3 id="the-log-likelihood-function">The log-likelihood function</h3>
-<p>log-likelihood function:</p>
-
-  <div class="equation">$$\begin{aligned}
-L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\
- &amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\
-\end{aligned}$$
-  </div>
-<p>. some text.</p>
+<p>log-likelihood function:
+<code>$$\begin{aligned} L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\ &amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\ \end{aligned}$$</code>
+. some text.</p>
 <h3 id="ml-estimator">ML estimator</h3>
-
-  <div class="equation">$$\max_{\mu,\sigma^{2}}l(\mu,\sigma^{2};x_{1},\ldots x_{n})$$
-  </div>
+<p><code>$$\max_{\mu,\sigma^{2}}l(\mu,\sigma^{2};x_{1},\ldots x_{n})$$</code></p>
 <p>As a consequence, the asymptotic covariance matrix is</p>
-
-  <div class="equation">$$\Bigg(Var\left[\nabla_{\mu,\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\Bigg|_{\mu=\mu_{0},\sigma^{2}=\sigma_{0}^{2}}\right]\Bigg)^{-1}=\left[\begin{array}{cc}
-\frac{1}{\sigma^{2}} &amp; 0\\
-0 &amp; \frac{1}{2\left(\sigma^{2}\right)^{2}}
-\end{array}\right]^{-1}=\left[\begin{array}{cc}
-\sigma^{2} &amp; 0\\
-0 &amp; 2\left(\sigma^{2}\right)^{2}
-\end{array}\right]$$
-  </div>
+<p><code>$$\Bigg(Var\left[\nabla_{\mu,\sigma^{2}}\ln\left(f_{X}\left(X_{j};\mu,\sigma^{2}\right)\right)\Bigg|_{\mu=\mu_{0},\sigma^{2}=\sigma_{0}^{2}}\right]\Bigg)^{-1}=\left[\begin{array}{cc} \frac{1}{\sigma^{2}} &amp; 0\\ 0 &amp; \frac{1}{2\left(\sigma^{2}\right)^{2}} \end{array}\right]^{-1}=\left[\begin{array}{cc} \sigma^{2} &amp; 0\\ 0 &amp; 2\left(\sigma^{2}\right)^{2} \end{array}\right]$$</code></p>
 <p>In other words, the distribution of the vector
-$(\widehat{\mu},\widehat{\sigma^{2}})^{T}$ can be approximated by a
-multivariate normal distribution with mean $(\mu,\sigma^{2})^{T}$and
-covariance matrix</p>
-
-  <div class="equation">$$\left[\begin{array}{cc}
-\widehat{\sigma^{2}} &amp; 0\\
-0 &amp; 2\left(\widehat{\sigma^{2}}\right)^{2}
-\end{array}\right]$$
-  </div>
-<p>align environment:</p>
-
-  <div class="equation">$$\begin{aligned}
- x &#43; y &amp;= 3 \\ x - y &amp;= 4 
-\end{aligned}$$
-  </div>
-<p>is an system of linear equation.</p>
+<code>$(\widehat{\mu},\widehat{\sigma^{2}})^{T}$</code>  can be approximated by
+a multivariate normal distribution with mean
+<code>$(\mu,\sigma^{2})^{T}$</code> and covariance matrix</p>
+<p><code>$$\left[\begin{array}{cc} \widehat{\sigma^{2}} &amp; 0\\ 0 &amp; 2\left(\widehat{\sigma^{2}}\right)^{2} \end{array}\right]$$</code></p>
+<p>align environment:
+<code>$$\begin{aligned} x + y &amp;= 3 \\ x - y &amp;= 4  \end{aligned}$$</code>
+is an system of linear equation.</p>
 
     <hr>
 

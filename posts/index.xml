@@ -60,11 +60,9 @@ ls fmm.lyx | entr -s &amp;#34;lyx -e xetex fmm.lyx &amp;amp;&amp;amp; pandoc -f 
       <pubDate>Mon, 17 Apr 2023 21:57:33 +0800</pubDate>
       
       <guid>https:neo2min2023.github.io /posts/fmm/fmm_simp/</guid>
-      <description>MLE for Normal densities Assumptions Our sample is made up of the first $n$ terms of an IID sequence ${X_{n}}$ of normal random variables having mean $\mu_{0}$ and variance $\sigma_{0}^{2}$.
-The probability density function of a generic term of the sequence is
-$$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$ The mean $\mu_{0}$ and the variance $\sigma_{0}^{2}$ are the two parameters that need to be estimated.
-The log-likelihood function log-likelihood function:
-$$\begin{aligned} L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp;amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\ &amp;amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\ \end{aligned}$$ .</description>
+      <description>MLE for Normal densities Assumptions Our sample is made up of the first $n$ terms of an IID sequence $\{X_{n}\}$ of normal random variables having mean $\mu_{0}$ and variance $\sigma_{0}^{2}$ .
+The probability density function of a generic term of the sequence is $$f_{X}\left(x_{j}\right)=\left(2\pi\sigma_{0}^{2}\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(x_{j}-\mu_{0}\right)^{2}}{\sigma_{0}^{2}}\right)$$ The mean $\mu_{0}$ and the variance $\sigma_{0}^{2}$ are the two parameters that need to be estimated.
+The log-likelihood function log-likelihood function: $$\begin{aligned} L(\mu,\sigma^{2};x_{1},\ldots x_{n}) &amp;amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-1/2}\exp\bigg(-\frac{1}{2\sigma^{2}}(x_{i}-\mu)^{2}\bigg)\\ &amp;amp; =(2\pi\sigma^{2})^{-n/2}\exp\bigg(-\frac{1}{2\sigma^{2}}\sum_{i=1}^{n}(x-\mu)^{2}\bigg)\\ \end{aligned}$$ .</description>
     </item>
     
     <item>
@@ -96,9 +94,10 @@ Build a website locally build site and push to github # pwd is projects hugo new
       <pubDate>Sun, 16 Apr 2023 09:26:27 +0800</pubDate>
       
       <guid>https:neo2min2023.github.io /posts/siterelated/math_code_demo/</guid>
-      <description>Task and solution Hugo can process math typesetting with the help of Katex, which can be achieved by a few steps of configuration.
+      <description>Abstract To render math equations, I firstly use katex for faster speed, but later switched to mathjax for convenience and features it can deliever.
+Task and solution Hugo can process math typesetting with the help of Katex, which can be achieved by a few steps of configuration.
 When using ananke theme, one can
-copy the following code from Katex website to theme/ananke/layout/partials/katex.html: &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css&amp;#34; integrity=&amp;#34;sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js&amp;#34; integrity=&amp;#34;sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js&amp;#34; integrity=&amp;#34;sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script&amp;gt; document.addEventListener(&amp;#34;DOMContentLoaded&amp;#34;, function() { renderMathInElement(document.body, { // customised options // • auto-render specific keys, e.g.: delimiters: [ {left: &amp;#39;$$&amp;#39;, right: &amp;#39;$$&amp;#39;, display: true}, {left: &amp;#39;$&amp;#39;, right: &amp;#39;$&amp;#39;, display: false}, {left: &amp;#39;\\(&amp;#39;, right: &amp;#39;\\)&amp;#39;, display: false}, {left: &amp;#39;\\[&amp;#39;, right: &amp;#39;\\]&amp;#39;, display: true} ], // • rendering keys, e.</description>
+copy the following code from Katex website to theme/ananke/layout/partials/katex.html: &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css&amp;#34; integrity=&amp;#34;sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js&amp;#34; integrity=&amp;#34;sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.</description>
     </item>
     
     <item>

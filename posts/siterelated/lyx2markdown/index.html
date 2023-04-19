@@ -6,6 +6,9 @@
     <title>convert lyx to markdown file | Research Notes</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/mathjax.css" />
+    
+    
     
      
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
@@ -30,6 +33,21 @@
 
  
 
+
+
+
+
+
+
+
+
+
+
+
+ 
+    
+    
+
   </head>
 
   <body>
@@ -43,6 +61,20 @@
 
     <h2>convert lyx to markdown file</h2>
     <h4>2023-04-18 11:22:17 &#43;0800 CST</h4>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</a></li>
+        <li><a href="#use-panflute-to-better-understand-pandoc">Use panflute to better understand pandoc</a></li>
+        <li><a href="#convert-latex-to-markdown-using-lua-filter">Convert latex to markdown using lua filter</a></li>
+        <li><a href="#a-python-filter-converting-all-inline-to-display-math">A python filter converting all inline to display math</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+    </aside>
     <hr>
     <h2 id="convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</h2>
 <p>Combine <code>lyx</code> and <code>entr</code>, we get a shell command to automatically convert lyx to latex and convert it to markdown file to deploy in hugo.</p>
