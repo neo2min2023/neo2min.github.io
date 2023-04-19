@@ -1,71 +1,14 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>convert lyx to markdown file | Research Notes</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
-    
-     
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js" integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-          
-          
-          delimiters: [
-              {left: '$$', right: '$$', display: true},
-              {left: '$', right: '$', display: false},
-              {left: '\\(', right: '\\)', display: false},
-              {left: '\\[', right: '\\]', display: true}
-          ],
-          
-          throwOnError : false
-        });
-    });
-</script>
-
-
- 
-  </head>
-
-  <body>
-    <nav>
-    <ul class="menu">
-      
-    </ul>
-    <hr/>
-    </nav>
-
-<div class="article-meta">
-<h1><span class="title">convert lyx to markdown file</span></h1>
-
-<h2 class="date">2023/04/18</h2>
-</div>
-
-<main>
-    <article>
-    <header>
-        <h1>convert lyx to markdown file</h1>
-    </header>
-    <aside>
-        <nav id="TableOfContents">
-  <ol>
-    <li>
-      <ol>
-        <li><a href="#convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</a></li>
-        <li><a href="#use-panflute-to-better-understand-pandoc">Use panflute to better understand pandoc</a></li>
-        <li><a href="#convert-latex-to-markdown-using-lua-filter">Convert latex to markdown using lua filter</a></li>
-        <li><a href="#a-python-filter-converting-all-inline-to-display-math">A python filter converting all inline to display math</a></li>
-      </ol>
-    </li>
-  </ol>
-</nav>
-    </aside>
-        <h2 id="convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</h2>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Header</h1>
+    <hr>
+    <h2>convert lyx to markdown file</h2>
+    <h3>2023-04-18 11:22:17 &#43;0800 CST</h3>
+    <h2 id="convert-lyx-file-to-latex-automatically">Convert lyx file to latex automatically</h2>
 <p>Combine <code>lyx</code> and <code>entr</code>, we get a shell command to automatically convert lyx to latex and convert it to markdown file to deploy in hugo.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>ls fmm.lyx | entr -s <span style="color:#e6db74">&#34;lyx -e xetex fmm.lyx &amp;&amp; pandoc -f latex -t markdown fmm.tex -o fmm.md &amp;&amp; echo markdown file updated&#34;</span>
 </span></span></code></pre></div><p>The default pandoc command convert displayed math in latex as a block enclosed by $$, which causes trouble if the equation is too complicated to render for hugo, for example,</p>
@@ -294,11 +237,8 @@ $$\begin{aligned} x &#43; y &amp;= 3 \\ x - y &amp;= 4 \end{aligned}$$
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
 </span></span><span style="display:flex;"><span>    main()
 </span></span></code></pre></div>
-    </article>
-</main>
-
-
-
-
-
+    <hr>
+    <h2>Footer</h2>
+</body>
+</html>
 
