@@ -1,13 +1,49 @@
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Header</h1>
-    <hr>
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>math typesetting in hugo | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+     
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" integrity="sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js" integrity="sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+ 
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
     <h2>math typesetting in hugo</h2>
-    <h3>2023-04-16 09:26:27 &#43;0800 CST</h3>
+    <h4>2023-04-16 09:26:27 &#43;0800 CST</h4>
+    <hr>
     <h1 id="task-and-solution">Task and solution</h1>
 <p>Hugo can process math typesetting with the help of Katex, which can be achieved by a few steps of configuration.</p>
 <p>When using <code>ananke</code> theme, one can</p>
@@ -118,7 +154,11 @@ $$ \begin{pmatrix}   a &amp; b \\  c &amp; d   \end{pmatrix} $$</p>
 </ul>
 
     <hr>
-    <h2>Footer</h2>
-</body>
+
+  <footer>
+  
+  
+  </footer>
+  </body>
 </html>
 
