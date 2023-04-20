@@ -6,7 +6,26 @@
     <description>Recent content in Posts on Research Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 19 Apr 2023 07:02:31 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 20 Apr 2023 11:48:28 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>EM_FMM</title>
+      <link>https:neo2min2023.github.io /posts/fmm/em_fmm/</link>
+      <pubDate>Thu, 20 Apr 2023 11:48:28 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/fmm/em_fmm/</guid>
+      <description>EM算法 论文：Dempster 1977 引言中多项分布的例子 假设有两个样本空间 $\mathcal{X}$ 和 $\mathcal{Y}$ , 以及满射 $f:\mathcal{X}\rightarrow\mathcal{Y}$ ，观测数据 $y\in\mathcal{Y}$ 是样本空间的一个实现值，对应的 $x\in\mathcal{X}$ 是不可直接观测的，但可以通过对 $y$ 的观测而&amp;quot;间接&amp;quot;估计。此时， $x$ 被称为完全数据， $y$ 被称为不完全数据。
+若给定参数 $\phi$ 下观测值 $x$ 的样本分布为 $f(x|\phi)$ ，则对应的不完全数据的分布为 $$g(y|\phi)=\int_{x(y)}f(x|\phi)dx$$
+EM算法就是利用 $f(x|\phi)$ ，求出使得 $g(y|\phi)$ 最大的 $\phi$ 。下面是一个简单直观的例子。Rao（1965）中给出了一组数据，包含对197个动物类型的四种分类。假设动物类型服从多项分布，观测的数据为： $$y=(y_{1},y_{2},y_{3},y_{4})=(125,18,20,34).$$ 一种遗传学模型认为反映动物所属四种类型的多项分布的概率参数为 $$\big(\frac{1}{2}+\frac{1}{4}\pi,\frac{1}{4}(1-\pi),\frac{1}{4}(1-\pi),\frac{1}{4}\pi\big),\pi\in[0,1]$$
+因此， $$g(y|\pi)=\dfrac{(y_{1}+y_{2}+y_{3}+y_{4})!}{y_{1}!y_{2}!y_{3}!y_{4}!}\big(\frac{1}{2}+\frac{1}{4}\pi\big)^{y_{1}}\big(\frac{1}{4}(1-\pi)\big)^{y_{2}}\big(\frac{1}{4}(1-\pi)\big)^{y_{3}}\big(\frac{1}{4}\pi\big)^{y_{4}}$$
+假设 $y$ 实际上是五种分类下的不完全数据，其分类概率参数为： $$\big(\frac{1}{2},\frac{1}{4}\pi,\frac{1}{4}(1-\pi),\frac{1}{4}(1-\pi),\frac{1}{4}\pi\big),\pi\in[0,1]$$
+即第一种类型实际上是可分为两种不同的类型。
+这个例子中的完全数据为 $x=(x_{1},x_{2},x_{3},x_{4},x_{5})$ , 不完全数据 $y=(x_{1}+x_{2},x_{3},x_{4},x_{5})$ ，对应的完全数据样本分布为
+$$f(x|\pi)=\dfrac{(x_{1}+x_{2}+x_{3}+x_{4}+x_{5})!}{x_{1}!x_{2}!x_{3}!x_{4}!x_{5}!}\big(\frac{1}{2}\big)^{x_{1}}\big(\frac{1}{4}\pi\big)^{x_{2}}\big(\frac{1}{4}(1-\pi)\big)^{x_{3}}\big(\frac{1}{4}(1-\pi)\big)^{x_{4}}\big(\frac{1}{4}\pi\big)^{x_{5}}$$
+$$g(y|\phi)=\int_{\{(x_{1},x_{2})\in\mathbb{Z}_{+}^{2}|x_{1}+x_{2}=125\}}f(x|\phi)dx$$
+对于此例而言，EM算法的期望环节（E-step）估计给定观测（不完全）数据 $y$ 下完全数据 $x$ 的充分统计量。本例中需要估计的充分统计量只有 $x_{1}$ 和 $x_{2}$ ， $x_{1}+x_{2}=y_{1}=125$ 。在第 $p$ 次迭代中， $$x_{1}^{(p)}=125\frac{1/2}{1/2+1/4\times\pi^{(p)}},x_{2}^{(p)}=125\frac{1/4\times\pi^{(p)}}{1/2+1/4\times\pi^{(p)}}.$$
+在接下来的最大化环节（M-step），在数据为 $(x_{1}^{(p)},x_{2}^{(p)},18,20,34)$ 时利用极大似然估计参数 $\pi$ , $$\underset{\pi}{\max}\;\dfrac{(x_{1}+x_{2}+18+20+34)!</description>
+    </item>
+    
     <item>
       <title>Test_archetypes</title>
       <link>https:neo2min2023.github.io /posts/test_archetypes/</link>
@@ -14,7 +33,7 @@
       
       <guid>https:neo2min2023.github.io /posts/test_archetypes/</guid>
       <description>This post is generated after adding a markdown file named posts.md in the folder archetypes. The content of posts.md is just a copy of the default.md in the directory archetypes except that the draft field is changed to true.
---- title: &amp;#34;Test_archetypes&amp;#34; date: 2023-04-19T07:02:31+08:00 # draft: true draft: false --- The filename of posts.md is picked on purpose to match the corresponding directory name in content so as to make all contents created inside directory content/posts automatically use just the template(archetype) in the file archetypes/posts to start a new file when use hugo new posts/test_archetypes.</description>
+1--- 2title: &amp;#34;Test_archetypes&amp;#34; 3date: 2023-04-19T07:02:31+08:00 4# draft: true 5draft: false 6--- The filename of posts.md is picked on purpose to match the corresponding directory name in content so as to make all contents created inside directory content/posts automatically use just the template(archetype) in the file archetypes/posts to start a new file when use hugo new posts/test_archetypes.</description>
     </item>
     
     <item>
@@ -23,7 +42,7 @@
       <pubDate>Tue, 18 Apr 2023 20:47:04 +0800</pubDate>
       
       <guid>https:neo2min2023.github.io /posts/fmm/fmm_implementation/</guid>
-      <description>FMM implementation # code library(fastglm) myols &amp;lt;- function(X, Y) { solve(crossprod(X)) %*% crossprod(X, Y)} X0 &amp;lt;- cbind(1, matrix(rnorm(8), ncol=2)) Y0 &amp;lt;- X0 %*% matrix(c(.2, -1.3, 2.7)) + rnorm(4) df0 &amp;lt;- as.data.frame(cbind(X0, Y0)) names(df0) &amp;lt;- c(&amp;#34;iota&amp;#34;, &amp;#34;k&amp;#34;, &amp;#34;l&amp;#34;, &amp;#34;y&amp;#34;) #weights &amp;lt;- c(1,2,3, 4) #weightsSqrt &amp;lt;- sqrt(weights) mywls &amp;lt;- function(X, Y, weights) { weightsSqrt &amp;lt;- sqrt(weights) Xtilde &amp;lt;- apply(X, 2, function(col){return(col * weightsSqrt)}) Ytilde &amp;lt;- Y * weightsSqrt betaHat &amp;lt;- solve(crossprod(Xtilde)) %*% crossprod(Xtilde, Ytilde) return(list(coefficients=betaHat, prior.</description>
+      <description>FMM implementation 1# code 2library(fastglm) 3 4myols &amp;lt;- function(X, Y) { solve(crossprod(X)) %*% crossprod(X, Y)} 5 6X0 &amp;lt;- cbind(1, matrix(rnorm(8), ncol=2)) 7Y0 &amp;lt;- X0 %*% matrix(c(.2, -1.3, 2.7)) + rnorm(4) 8df0 &amp;lt;- as.data.frame(cbind(X0, Y0)) 9names(df0) &amp;lt;- c(&amp;#34;iota&amp;#34;, &amp;#34;k&amp;#34;, &amp;#34;l&amp;#34;, &amp;#34;y&amp;#34;) 10 11#weights &amp;lt;- c(1,2,3, 4) 12#weightsSqrt &amp;lt;- sqrt(weights) 13 14mywls &amp;lt;- function(X, Y, weights) { 15 weightsSqrt &amp;lt;- sqrt(weights) 16 Xtilde &amp;lt;- apply(X, 2, function(col){return(col * weightsSqrt)}) 17 Ytilde &amp;lt;- Y * weightsSqrt 18 betaHat &amp;lt;- solve(crossprod(Xtilde)) %*% crossprod(Xtilde, Ytilde) 19 return(list(coefficients=betaHat, prior.</description>
     </item>
     
     <item>
@@ -32,7 +51,7 @@
       <pubDate>Tue, 18 Apr 2023 20:06:21 +0800</pubDate>
       
       <guid>https:neo2min2023.github.io /posts/fmm/mixturedist_vs_sumofrv/</guid>
-      <description>pdf of weighted sum of normal pdfs VS pdf of weighted sum of normally distributed random variables. xs &amp;lt;- seq(-6, 10, by=0.01) sigma1 &amp;lt;- 1 sigma2 &amp;lt;- 2 mu1 &amp;lt;- -1 mu2 &amp;lt;- 3 pdf1 &amp;lt;- 1/sqrt((2*pi*sigma1^2)) * exp(-1/(2*sigma1^2) * (xs - mu1)^2) pdf2 &amp;lt;- 1/sqrt((2*pi*sigma2^2)) * exp(-1/(2*sigma2^2) * (xs - mu2)^2) omega1 &amp;lt;- 0.2 omega2 &amp;lt;- 0.8 pdf1_weighted &amp;lt;- omega1 * pdf1 pdf2_weighted &amp;lt;- omega2 * pdf2 pdf_mixed &amp;lt;- pdf1_weighted + pdf2_weighted mu_sum &amp;lt;- omega1 * mu1 + omega2 * mu2 sigma_sum &amp;lt;- sqrt(omega1^2 * sigma1^2 + omega2^2 * sigma2^2) pdf_sum &amp;lt;- 1/sqrt((2*pi*sigma_sum^2)) * exp(-1/(2*sigma_sum^2) * (xs - mu_sum)^2) sampleDf &amp;lt;- data.</description>
+      <description>pdf of weighted sum of normal pdfs VS pdf of weighted sum of normally distributed random variables. 1xs &amp;lt;- seq(-6, 10, by=0.01) 2sigma1 &amp;lt;- 1 3sigma2 &amp;lt;- 2 4mu1 &amp;lt;- -1 5mu2 &amp;lt;- 3 6pdf1 &amp;lt;- 1/sqrt((2*pi*sigma1^2)) * exp(-1/(2*sigma1^2) * (xs - mu1)^2) 7pdf2 &amp;lt;- 1/sqrt((2*pi*sigma2^2)) * exp(-1/(2*sigma2^2) * (xs - mu2)^2) 8 9omega1 &amp;lt;- 0.2 10omega2 &amp;lt;- 0.8 11pdf1_weighted &amp;lt;- omega1 * pdf1 12pdf2_weighted &amp;lt;- omega2 * pdf2 13pdf_mixed &amp;lt;- pdf1_weighted + pdf2_weighted 14mu_sum &amp;lt;- omega1 * mu1 + omega2 * mu2 15sigma_sum &amp;lt;- sqrt(omega1^2 * sigma1^2 + omega2^2 * sigma2^2) 16pdf_sum &amp;lt;- 1/sqrt((2*pi*sigma_sum^2)) * exp(-1/(2*sigma_sum^2) * (xs - mu_sum)^2) 17 18sampleDf &amp;lt;- data.</description>
     </item>
     
     <item>
@@ -41,7 +60,7 @@
       <pubDate>Tue, 18 Apr 2023 17:55:43 +0800</pubDate>
       
       <guid>https:neo2min2023.github.io /posts/fmm/em_simulation/</guid>
-      <description>EM algorithm for normal mixture models new version # initial values pi1_0 &amp;lt;- 0.4 pi2_0 &amp;lt;- 0.6 mu1_0 &amp;lt;- -1 mu2_0 &amp;lt;- 3 sigma1_0 &amp;lt;- sqrt(1) sigma2_0 &amp;lt;- sqrt(2) N &amp;lt;- 50 maxIter &amp;lt;- 100 loglik &amp;lt;- rep(NA, maxIter) set.seed(4) df &amp;lt;- data.table(grp=sample(c(0,1), N, replace=TRUE, prob=c(pi1_0, pi2_0)), x1=rnorm(N, mu1_0, sigma1_0^2), x2=rnorm(N, mu2_0, sigma2_0^2)) df[, x:=fifelse(grp==0, x1, x2)] kde_x &amp;lt;- df[, density(x)] df[, plot(kde_x)] NULL xs &amp;lt;- kde_x$x df[, plot(kde_x, ylim=c(-1.1, 0.</description>
+      <description>EM algorithm for normal mixture models new version 1# initial values 2pi1_0 &amp;lt;- 0.4 3pi2_0 &amp;lt;- 0.6 4mu1_0 &amp;lt;- -1 5mu2_0 &amp;lt;- 3 6sigma1_0 &amp;lt;- sqrt(1) 7sigma2_0 &amp;lt;- sqrt(2) 8N &amp;lt;- 50 9maxIter &amp;lt;- 100 10loglik &amp;lt;- rep(NA, maxIter) 11set.seed(4) 12df &amp;lt;- data.table(grp=sample(c(0,1), N, replace=TRUE, prob=c(pi1_0, pi2_0)), x1=rnorm(N, mu1_0, sigma1_0^2), x2=rnorm(N, mu2_0, sigma2_0^2)) 13df[, x:=fifelse(grp==0, x1, x2)] 14kde_x &amp;lt;- df[, density(x)] 15df[, plot(kde_x)] NULL 1xs &amp;lt;- kde_x$x 2df[, plot(kde_x, ylim=c(-1.1, 0.</description>
     </item>
     
     <item>
@@ -51,7 +70,7 @@
       
       <guid>https:neo2min2023.github.io /posts/siterelated/lyx2markdown/</guid>
       <description>Convert lyx file to latex automatically Combine lyx and entr, we get a shell command to automatically convert lyx to latex and convert it to markdown file to deploy in hugo.
-ls fmm.lyx | entr -s &amp;#34;lyx -e xetex fmm.lyx &amp;amp;&amp;amp; pandoc -f latex -t markdown fmm.tex -o fmm.md &amp;amp;&amp;amp; echo markdown file updated&amp;#34; The default pandoc command convert displayed math in latex as a block enclosed by $$, which causes trouble if the equation is too complicated to render for hugo, for example,</description>
+1ls fmm.lyx | entr -s &amp;#34;lyx -e xetex fmm.lyx &amp;amp;&amp;amp; pandoc -f latex -t markdown fmm.tex -o fmm.md &amp;amp;&amp;amp; echo markdown file updated&amp;#34; The default pandoc command convert displayed math in latex as a block enclosed by $$, which causes trouble if the equation is too complicated to render for hugo, for example,</description>
     </item>
     
     <item>
@@ -85,7 +104,7 @@ The log-likelihood function $$\begin{aligned} L(\mu,\sigma^{2};x_{1},\ldots x_{n
       
       <guid>https:neo2min2023.github.io /posts/siterelated/hugo_workflow/</guid>
       <description>Firstly, start two repos named researchNotes and neo2min2023.github.io on github.
-Build a website locally build site and push to github # pwd is projects hugo new site researchNotes cd researchNotes git init git add remote https://github.com/neo2min2023/researchNotes.git git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke echo &amp;#34;theme = &amp;#39;ananke&amp;#39;&amp;#34; &amp;gt;&amp;gt; config.toml hugo server git add . git commit -m &amp;#39;init commit&amp;#39; git push -u origin master # cd .. git clone https://github.com/neo2min2023/neo2min2023.github.io.git cd neo2min2023.github.io git checkout -b main touch readme git add .</description>
+Build a website locally build site and push to github 1# pwd is projects 2hugo new site researchNotes 3cd researchNotes 4git init 5git add remote https://github.com/neo2min2023/researchNotes.git 6git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke themes/ananke 7echo &amp;#34;theme = &amp;#39;ananke&amp;#39;&amp;#34; &amp;gt;&amp;gt; config.toml 8hugo server 9git add . 10git commit -m &amp;#39;init commit&amp;#39; 11git push -u origin master 12 13# 14 15cd .. 16git clone https://github.com/neo2min2023/neo2min2023.github.io.git 17cd neo2min2023.</description>
     </item>
     
     <item>
@@ -97,7 +116,7 @@ Build a website locally build site and push to github # pwd is projects hugo new
       <description>Abstract To render math equations, I firstly use katex for faster speed, but later switched to mathjax for convenience and features it can deliever.
 Task and solution Hugo can process math typesetting with the help of Katex, which can be achieved by a few steps of configuration.
 When using ananke theme, one can
-copy the following code from Katex website to theme/ananke/layout/partials/katex.html: &amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css&amp;#34; integrity=&amp;#34;sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js&amp;#34; integrity=&amp;#34;sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script defer src=&amp;#34;https://cdn.</description>
+copy the following code from Katex website to theme/ananke/layout/partials/katex.html: 1&amp;lt;link rel=&amp;#34;stylesheet&amp;#34; href=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css&amp;#34; integrity=&amp;#34;sha384-vKruj+a13U8yHIkAyGgK1J3ArTLzrFGBbBc0tDp4ad/EyewESeXE/Iv67Aj8gKZ0&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt; 2&amp;lt;script defer src=&amp;#34;https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js&amp;#34; integrity=&amp;#34;sha384-PwRUT/YqbnEjkZO0zZxNqcxACrXe+j766U2amXcgMg5457rve2Y7I6ZJSm2A0mS4&amp;#34; crossorigin=&amp;#34;anonymous&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; 3&amp;lt;script defer src=&amp;#34;https://cdn.</description>
     </item>
     
     <item>

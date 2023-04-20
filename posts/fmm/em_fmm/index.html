@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EM_FMM | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/mathjax.css" />
+    
+    
+    
+    
+    
+    
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      tags: 'ams'
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  
+
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+    <h2>EM_FMM</h2>
+    <h4>2023-04-20 11:48:28 &#43;0800 CST</h4>
+    <aside>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#em算法">EM算法</a>
+      <ol>
+        <li><a href="#论文dempster-1977">论文：Dempster 1977</a>
+          <ol>
+            <li><a href="#引言中多项分布的例子">引言中多项分布的例子</a></li>
+            <li><a href="#em算法的证明">EM算法的证明</a></li>
+          </ol>
+        </li>
+        <li><a href="#em算法的应用">EM算法的应用</a>
+          <ol>
+            <li><a href="#高斯混合模型gmm">高斯混合模型（GMM）</a></li>
+            <li><a href="#因子分析">因子分析</a></li>
+            <li><a href="#有限混合模型">有限混合模型</a></li>
+          </ol>
+        </li>
+        <li><a href="#代码示例">代码示例</a></li>
+      </ol>
+    </li>
+    <li><a href="#有限混合模型-1">有限混合模型</a>
+      <ol>
+        <li><a href="#论文desarbo-1988">论文：Desarbo 1988</a>
+          <ol>
+            <li><a href="#linear-models-with-mixture">linear models with mixture</a></li>
+          </ol>
+        </li>
+        <li><a href="#代码实现">代码实现</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+    </aside>
+    <hr>
+    <h1 id="em算法">EM算法</h1>
+<h2 id="论文dempster-1977">论文：Dempster 1977</h2>
+<h3 id="引言中多项分布的例子">引言中多项分布的例子</h3>
+<p>假设有两个样本空间 <code>$\mathcal{X}$</code> 和 <code>$\mathcal{Y}$</code> ,
+以及满射 <code>$f:\mathcal{X}\rightarrow\mathcal{Y}$</code> ，观测数据 <code>$y\in\mathcal{Y}$</code> 是样本空间的一个实现值，对应的 <code>$x\in\mathcal{X}$</code> 是不可直接观测的，但可以通过对 <code>$y$</code> 的观测而&quot;间接&quot;估计。此时， <code>$x$</code> 被称为完全数据， <code>$y$</code> 被称为不完全数据。</p>
+<p>若给定参数 <code>$\phi$</code> 下观测值 <code>$x$</code> 的样本分布为 <code>$f(x|\phi)$</code> ，则对应的不完全数据的分布为
+<code>$$g(y|\phi)=\int_{x(y)}f(x|\phi)dx$$</code></p>
+<p>EM算法就是利用 <code>$f(x|\phi)$</code> ，求出使得 <code>$g(y|\phi)$</code> 最大的 <code>$\phi$</code> 。下面是一个简单直观的例子。Rao（1965）中给出了一组数据，包含对197个动物类型的四种分类。假设动物类型服从多项分布，观测的数据为：
+<code>$$y=(y_{1},y_{2},y_{3},y_{4})=(125,18,20,34).$$</code>
+一种遗传学模型认为反映动物所属四种类型的多项分布的概率参数为
+<code>$$\big(\frac{1}{2}+\frac{1}{4}\pi,\frac{1}{4}(1-\pi),\frac{1}{4}(1-\pi),\frac{1}{4}\pi\big),\pi\in[0,1]$$</code></p>
+<p>因此，
+<code>$$g(y|\pi)=\dfrac{(y_{1}+y_{2}+y_{3}+y_{4})!}{y_{1}!y_{2}!y_{3}!y_{4}!}\big(\frac{1}{2}+\frac{1}{4}\pi\big)^{y_{1}}\big(\frac{1}{4}(1-\pi)\big)^{y_{2}}\big(\frac{1}{4}(1-\pi)\big)^{y_{3}}\big(\frac{1}{4}\pi\big)^{y_{4}}$$</code></p>
+<p>假设 <code>$y$</code> 实际上是五种分类下的不完全数据，其分类概率参数为：
+<code>$$\big(\frac{1}{2},\frac{1}{4}\pi,\frac{1}{4}(1-\pi),\frac{1}{4}(1-\pi),\frac{1}{4}\pi\big),\pi\in[0,1]$$</code></p>
+<p>即第一种类型实际上是可分为两种不同的类型。</p>
+<p>这个例子中的完全数据为 <code>$x=(x_{1},x_{2},x_{3},x_{4},x_{5})$</code> ,
+不完全数据 <code>$y=(x_{1}+x_{2},x_{3},x_{4},x_{5})$</code> ，对应的完全数据样本分布为</p>
+<p><code>$$f(x|\pi)=\dfrac{(x_{1}+x_{2}+x_{3}+x_{4}+x_{5})!}{x_{1}!x_{2}!x_{3}!x_{4}!x_{5}!}\big(\frac{1}{2}\big)^{x_{1}}\big(\frac{1}{4}\pi\big)^{x_{2}}\big(\frac{1}{4}(1-\pi)\big)^{x_{3}}\big(\frac{1}{4}(1-\pi)\big)^{x_{4}}\big(\frac{1}{4}\pi\big)^{x_{5}}$$</code></p>
+<p><code>$$g(y|\phi)=\int_{\{(x_{1},x_{2})\in\mathbb{Z}_{+}^{2}|x_{1}+x_{2}=125\}}f(x|\phi)dx$$</code></p>
+<p>对于此例而言，EM算法的期望环节（E-step）估计给定观测（不完全）数据 <code>$y$</code> 下完全数据 <code>$x$</code> 的充分统计量。本例中需要估计的充分统计量只有 <code>$x_{1}$</code> 和 <code>$x_{2}$</code> ， <code>$x_{1}+x_{2}=y_{1}=125$</code> 。在第 <code>$p$</code> 次迭代中，
+<code>$$x_{1}^{(p)}=125\frac{1/2}{1/2+1/4\times\pi^{(p)}},x_{2}^{(p)}=125\frac{1/4\times\pi^{(p)}}{1/2+1/4\times\pi^{(p)}}.$$</code></p>
+<p>在接下来的最大化环节（M-step），在数据为 <code>$(x_{1}^{(p)},x_{2}^{(p)},18,20,34)$</code> 时利用极大似然估计参数 <code>$\pi$</code> ,
+<code>$$\underset{\pi}{\max}\;\dfrac{(x_{1}+x_{2}+18+20+34)!}{x_{1}!x_{2}!18!20!34!}\big(\frac{1}{2}\big)^{x_{1}}\big(\frac{1}{4}\pi\big)^{x_{2}}\big(\frac{1}{4}(1-\pi)\big)^{18}\big(\frac{1}{4}(1-\pi)\big)^{20}\big(\frac{1}{4}\pi\big)^{34}$$</code></p>
+<p>从而得出
+<code>$$\begin{aligned} \pi^{(p+1)} &amp; =\underset{\pi}{\arg\max}\big(\pi\big)^{x_{2}}\big((1-\pi)\big)^{18}\big((1-\pi)\big)^{20}\big(\pi\big)^{34}\\ &amp; =\underset{\pi}{\arg\max}\pi^{x_{2}+34}(1-\pi)^{18+20}\\ &amp; =\underset{\pi}{\arg\max}(x_{2}+34)\ln\pi+(18+20)\ln(1-\pi) \end{aligned}$$</code></p>
+<p>FOC</p>
+<p><code>$$\frac{(x_{2}+34)}{\pi}-\frac{(18+20)}{1-\pi}=\frac{(x_{2}+34)(1-\pi)-(18+20)\pi}{\pi(1-\pi)}=0$$</code></p>
+<p><code>$$\begin{aligned} \pi^{(p+1)} &amp; =\dfrac{x_{2}^{(p)}+34}{x_{2}^{(p)}+34+18+20} \end{aligned}$$</code></p>
+<p>在这个简单的例子中，我们可以显示地将最后收敛的理论值 <code>$\pi^{\ast}$</code> 求解出来，即
+<code>$$\begin{aligned} \pi^{\ast} &amp; =\dfrac{125\frac{1/4\times\pi^{\ast}}{1/2+1/4\times\pi^{\ast}}+34}{125\frac{1/4\times\pi^{\ast}}{1/2+1/4\times\pi^{\ast}}+34+18+20} \end{aligned}$$</code></p>
+<p>也可以通过数值迭代，在给定初值，如 <code>$\pi^{(0)}=0.5$</code> 的情况下在期望环节和最大化环节反复迭代求出最后的数值。</p>
+<h3 id="em算法的证明">EM算法的证明</h3>
+<p>原论文中对指数族分布和一般情形下的EM算法分别给予了证明，其中涉及一些较为复杂的数学概念，如弯曲子流形（curved
+submanifold），讨论起来相对复杂。因此，下面借用吴恩达的机器学习课程第8课的内容对EM的算法进行证明<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p>假设我们希望利用给定包含m个独立观测值的训练集 <code>$\{x^{(1)},x^{(2)},\ldots,x^{(m)}\}$</code> 拟合一个模型 <code>$p(x,z)$</code> ，对应的似然函数为</p>
+<p><code>$$l(\theta)=\sum_{i=1}^{m}\log p(x;\theta)=\sum_{i=1}^{m}\log\sum_{z}p(x,z;\theta)$$</code></p>
+<p>这里的 <code>$z^{(i)}$</code> 是潜在的随机变量，它在通常情况下是无法观测的。如果它可观测，则极大似然问题通常都很容易求解。此时，EM算法提供了一种有效的极大似然估计方法。在直接最大化 <code>$l(\theta)$</code> 有困难时，EM算法的在每一次迭代中先构造一个 <code>$l(\theta)$</code> 的下界（E-step），然后最大化这个下界（M-step）。</p>
+<p>令 <code>$Q_{i}$</code> 为刻画 <code>$z$</code> 的分布（ <code>$\sum_{z}Q_{i}(z)=1,Q_{i}(z)\geq0$</code> ），则有</p>
+<p><code>$$\begin{aligned} \sum_{i=1}^{m}\log p(x^{(i)};\theta) &amp; =\sum_{i=1}^{m}\log\sum_{z^{(i)}}p(x^{(i)},z^{(i)};\theta)\\ &amp; =\sum_{i=1}^{m}\log\sum_{z^{(i)}}Q_{i}(z^{(i)})\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})}\\ &amp; \geq\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})} \end{aligned}$$</code></p>
+<p>上式中最后一个式子利用了Jensen不等式，即
+<code>$$f\left[\mathbb{E}_{z^{(i)}\sim Q_{i}}\left(\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})}\right)\right]\geq\mathbb{E}_{z^{(i)}\sim Q_{i}}\left[f\left(\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})}\right)\right]$$</code></p>
+<p>对于任意分布 <code>$Q_{i}$</code> ，
+<code>$$\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})}\leq\sum_{i=1}^{m}\log p(x^{(i)};\theta)=l(\theta)$$</code></p>
+<p>都是 <code>$l(\theta)$</code> 的一个下界，但是在 <code>$z$</code> 上的分布有很大，到底该选择哪一个 <code>$Q_{i}$</code> ？若已有某个对参数 <code>$\theta$</code> 的猜测（估计），那么对 <code>$Q_{i}$</code> 一个合理的选择是在该猜测值处，下界应该尽量与真实值靠近，或者干脆相等。上式中Jensen不等式取等号的一个充分条件是
+<code>$$\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})}=c$$</code></p>
+<p>即当期望中的随机变量退化为常量时。可以通过选择恰当的 <code>$Q_{i}$</code> 使得
+<code>$$Q_{i}(z^{(i)})\propto p(x^{(i)},z^{(i)};\theta)$$</code></p>
+<p>由于 <code>$\sum_{z}Q_{i}(z)=1$</code> ，可以令 <code>$Q_{i}$</code> 为 <code>$z^{(i)}$</code> 在给定 <code>$x^{(i)}$</code> 和 <code>$\theta$</code>
+的后验概率，即
+<code>$$\begin{aligned} Q_{i}(z^{(i)}) &amp; =\dfrac{p(x^{(i)},z^{(i)};\theta)}{\sum_{z}p(x^{(i)},z^{(i)};\theta)}\\ &amp; =\dfrac{p(x^{(i)},z^{(i)};\theta)}{p(x^{(i)};\theta)}\\ &amp; =p(z^{(i)}|x^{(i)};\theta) \end{aligned}$$</code></p>
+<p>以上就是EM算法的期望环节，在最大化环节中，我们对
+<code>$$\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}(z^{(i)})}$$</code>
+求解最大值及其对应的参数 <code>$\theta$</code> 。</p>
+<p>为了证明EM算法的收敛性质，假设 <code>$\theta^{(t)}$</code> 为第 <code>$t$</code> 次迭代的参数估计值，我们首先证明 <code>$l(\theta^{(t)})\leq l(\theta^{(t+1)})$</code> ，即EM算法在迭代过程中会单调改善似然值。证明的关键在于对 <code>$Q_{i}$</code> 的选择，具体而言，在 <code>$Q_{i}^{(t)}(z^{(i)})=p(z^{(i)}|x^{(i)};\theta^{(t)})$</code> 时，
+<code>$$l(\theta^{(t)})=\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_{i}^{(t)}(z^{(i)})}$$</code></p>
+<p>由于 <code>$Q^{(t+1)}$</code>
+是第 <code>$t+1$</code> 次迭代中使得下界与真实似然函数 <code>$l(\theta^{(t+1)})$</code> 相等的分布函数，则对于任意的 <code>$Q^{(t)}$</code>
+<code>$$l(\theta^{(t+1)})\geq\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta^{(t+1)})}{Q_{i}^{(t)}(z^{(i)})}$$</code></p>
+<p>而由于在第 <code>$t+1$</code> 次迭代M环节中
+<code>$$\theta^{(t+1)}=\underset{\theta}{\arg\max}\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta)}{Q_{i}^{(t)}(z^{(i)})}$$</code></p>
+<p>因此
+<code>$$\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta^{(t+1)})}{Q_{i}^{(t)}(z^{(i)})}\geq\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_{i}^{(t)}(z^{(i)})}=l(\theta)$$</code></p>
+<p>结合上面两步的结果可得
+<code>$$\begin{aligned} l(\theta^{(t+1)}) &amp; \geq\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta^{(t+1)})}{Q_{i}^{(t)}(z^{(i)})}\\ &amp; \geq\sum_{i=1}^{m}\sum_{z^{(i)}}Q_{i}^{(t)}(z^{(i)})\log\dfrac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_{i}^{(t)}(z^{(i)})}\\ &amp; =l(\theta) \end{aligned}$$</code></p>
+<p>另外还有一种利用KL散度的方法来证明EM算法，这种证明利用了KL散度和极大似然之间的密切联系，证明过程也较为简洁。</p>
+<h2 id="em算法的应用">EM算法的应用</h2>
+<h3 id="高斯混合模型gmm">高斯混合模型（GMM）</h3>
+<p>给定包含m个独立观测值的样本 <code>$\{x^{(1)},x^{(2)},\ldots,x^{(m)}\}$</code> ，我们想利用次数据集对变量 <code>$x$</code> 和另一个潜在变量 <code>$z$</code> 和联合分布进行建模，即 <code>$p(x^{(i)},z^{(i)})=p(x^{(i)}|z^{(i)})p(z^{(i)})$</code> 。其中 <code>$z$</code> 通常被解都为对变量 <code>$x$</code> 的分类，假设 <code>$z^{(i)}$</code> 服从参数为 <code>$(1,\phi)$</code> 的多项分布，即
+<code>$$z^{(i)}\sim\text{Multinomial}(1,\phi),\phi_{j}=\mathbb{P}(z^{(i)}=j),\phi_{j}\geq0,\sum_{j=1}^{k}\phi_{j}=1$$</code>
+假设条件分布
+<code>$$x^{(i)}|z^{(i)}\sim\mathcal{N}(\mu_{j},\Sigma_{j}).$$</code></p>
+<p>那么上述模型表明 <code>$x^{(i)}$</code> 的数据生成过程（DGP）为：首先，从集合 <code>$\{1,2,\ldots,k\}$</code> 中随机抽取 <code>$z^{(i)}$</code> ，然后从多元正态分布 <code>$\mathcal{N}(\mu_{j},\Sigma_{j})$</code> 中随机抽取 <code>$x^{(i)}$</code> ，这就是所谓的高斯混合模型。</p>
+<p>值得注意的是，高斯混合模型和多个服从高斯分布的随机变量的凸组合之间的差异。假设我们有两个随机变量
+<code>$$X_{j}\sim\mathcal{N}(\mu_{j},\sigma_{j}^{2}),j=1,2,$$</code></p>
+<p>定义另外两个随机变量
+<code>$$Y_{1}=\omega_{1}X_{1}+\omega_{2}X_{2}$$</code></p>
+<p>而随机变量 <code>$Y_{2}$</code> 的分布则满足
+<code>$$f(Y_{2})=\omega_{1}f(X_{1})+\omega_{2}f(X_{2})$$</code></p>
+<p>随机变量 <code>$Y_{1}$</code> 和 <code>$Y_{2}$</code> 是两个完全不同的随机变量，以下网站利用R代码展示了二者的区别：<a href="https://neomin.top/posts/fmm/mixturedist_vs_sumofrv/">https://neomin.top/posts/fmm/mixturedist_vs_sumofrv/</a>。</p>
+<h3 id="因子分析">因子分析</h3>
+<h3 id="有限混合模型">有限混合模型</h3>
+<h2 id="代码示例">代码示例</h2>
+<p>代码示例见以下网站：<a href="https://neomin.top/posts/fmm/em_simulation/">https://neomin.top/posts/fmm/em_simulation/</a>，该网站展示了如何利用EM算法，对正态分布混合和二项分布混合的相关参数进行估计。</p>
+<h1 id="有限混合模型-1">有限混合模型</h1>
+<h2 id="论文desarbo-1988">论文：Desarbo 1988</h2>
+<p>If we assume</p>
+<p><code>$$y_{i}\sim\mathcal{N}\bigg(\sum_{j=1}^{k}X_{ij}b_{j},\sigma^{2}\bigg)\text{ or }e_{i}\equiv(y_{i}-x_{i}'b)\sim\mathcal{N}(0,\sigma^{2}),$$</code></p>
+<p>that is,  <code>$\sigma$</code>  is given but  <code>$\mathbf{b}$</code> is unknown, then
+the likelihood function is:</p>
+<p><code>$$\begin{aligned} L(y|b,\sigma^{2}) &amp; =\prod_{i=1}^{n}(2\pi\sigma^{2})^{-\frac{1}{2}}\exp\Bigg(-\dfrac{e_{i}'e_{i}}{2\sigma^{2}}\Bigg)\\ &amp; =(2\pi\sigma^{2})^{-\frac{n}{2}}\exp\Bigg(-\dfrac{1}{2\sigma^{2}}\sum_{i=1}^{n}e_{i}'e_{i}\Bigg)\\ &amp; =(2\pi\sigma^{2})^{-\frac{n}{2}}\exp\Bigg(-\dfrac{1}{2\sigma^{2}}\mathbf{(y-Xb)'(y-Xb)}\Bigg) \end{aligned}$$</code></p>
+<p>The log-likelihood funciton is</p>
+<p><code>$$\begin{aligned} \log L(y|b,\sigma^{2}) &amp; =-\dfrac{n}{2}\log(2\pi\sigma^{2})-\dfrac{1}{2\sigma^{2}}\mathbf{(y-Xb)'(y-Xb)}. \end{aligned}$$</code></p>
+<p>the corresponding maximum likelihood estimates for b that maximize the
+likelihood function are equivalent to those obtained from least squares
+estimation .</p>
+<h3 id="linear-models-with-mixture">linear models with mixture</h3>
+<p>In addition to OLS setup, we assume
+<code>$$\begin{aligned} n &amp; =1\ldots n\text{ observations;}\\ b_{jm} &amp; =\text{ the j-th OLS regression coefficients in m-th cluster}\\ \sigma_{m}^{2} &amp; =\text{ the variance term for the m-th cluster} \end{aligned}$$</code></p>
+<p>We assume  <code>$y_{i}$</code>  is distributed as</p>
+<p><code>$$y_{i}\sim\sum_{m=1}^{M}\lambda_{m}f_{im}(y_{i}|X_{i}^{'},\sigma_{m}^{2},b_{m}')=\sum_{m=1}^{M}\lambda_{m}\mathcal{N}(X_{i}^{'}b_{m},\sigma_{m}^{2})$$</code></p>
+<p>The likelihood function is given by</p>
+<p><code>$$L=\prod_{i=1}^{n}\Bigg[\sum_{m=1}^{M}\lambda_{m}\Bigg(\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\Bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)\Bigg)\Bigg)\Bigg]$$</code></p>
+<p>Its log-likelihood funciton is:</p>
+<p><code>$$\ln L=\sum_{i=1}^{n}\ln\Bigg[\sum_{m=1}^{M}\lambda_{m}\Bigg(\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)\Bigg)\Bigg)\Bigg]$$</code></p>
+<p>Given  <code>$M,\mathbf{y},\mathbf{X},$</code> the mle problem is</p>
+<p><code>$$\begin{aligned} \max_{\{\lambda_{m},\sigma_{m}^{2},b_{m}\}_{m=1}^{M}}\ln L &amp; =\sum_{i=1}^{n}\ln\Bigg[\sum_{m=1}^{M}\lambda_{m}\Bigg(\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)\Bigg)\Bigg)\Bigg]\\ \text{s.t. }0\leq\lambda_{m} &amp; \leq1\\ \sum_{m=1}^{M}\lambda_{m} &amp; =1\\ \sigma_{m}^{2} &amp; &gt;0,\text{ for }m=1,\ldots M\\ b_{m} &amp; \geq0 \end{aligned}$$</code></p>
+<p>We can formulate the Lagrangian for the above problem as</p>
+<p><code>$$\mathcal{L}=\sum_{i=1}^{n}\ln\Bigg[\sum_{m=1}^{M}\lambda_{m}f_{im}(y_{i}|X_{i}^{'},\sigma_{m}^{2},b_{m}')\Bigg]-\mu\bigg(\sum_{m}\lambda_{m}-1\bigg),$$</code></p>
+<p>from which we can derive the foc:</p>
+<p><code>$$\begin{align} \dfrac{\partial\mathcal{L}}{\partial\lambda_{m}} &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}f_{im}(\ast)-\mu=0,\text{ for }m=1,\ldots M\label{eq:foc1}\\ \dfrac{\partial\mathcal{L}}{\partial\sigma_{m}^{2}} &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}\dfrac{\partial f_{im}(\ast)}{\partial\sigma_{m}^{2}}=0\text{ for }m=1,\ldots M\label{eq:foc2}\\ \dfrac{\partial\mathcal{L}}{\partial b_{jm}} &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}\dfrac{\partial f_{im}(\ast)}{\partial b_{jm}}=0\text{ for }m=1,\ldots M,j=1\ldots k\label{eq:foc3} \end{align}$$</code></p>
+<p>To estimate  <code>$\mu$</code> , we multiply both sides of equation
+(\ref{eq:foc1}) by  <code>$\lambda_{m}$</code> and sum over  <code>$m$</code> ,</p>
+<p><code>$$\begin{aligned} \mu &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}f_{im}(\ast)\\ \mu\sum_{m}\lambda_{m} &amp; =\sum_{m}\lambda_{m}\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}f_{im}(\ast)\\ &amp; =\sum_{i=1}^{n}\sum_{m}\lambda_{m}f_{im}(\ast)\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\\ \Rightarrow\mu &amp; =\sum_{i=1}^{n}1=n \end{aligned}$$</code></p>
+<p>To estimate  <code>$\lambda_{m}$</code> , we multiply both sides of the equation
+(\ref{eq:foc1}) by  <code>$\lambda_{m}$</code>  and simplyfying:</p>
+<p><code>$$\begin{align} \mu &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}f_{im}(\ast)\nonumber \\ \mu\lambda_{m} &amp; =\sum_{i=1}^{n}\lambda_{m}f_{im}(\ast)\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\\ n\lambda_{m} &amp; =\sum_{i=1}^{n}\lambda_{m}f_{im}(\ast)\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\nonumber \\ \lambda_{m} &amp; =\dfrac{\sum_{i=1}^{n}\hat{p}_{im}}{n},\label{eq:lambda_m} \end{align}$$</code></p>
+<p>where</p>
+<p><code>$$\begin{equation}\hat{p}_{im}\equiv\dfrac{\lambda_{m}f_{im}(\ast)}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\label{eq:p_im}\end{equation}$$</code></p>
+<p>In order to estimate  <code>$\sigma_{m}^{2}$</code>  and  <code>$b_{jm}$</code>  , we use
+(\ref{eq:foc2}) and (\ref{eq:foc3}) as:</p>
+<p><code>$$\begin{align} \dfrac{\partial\mathcal{L}}{\partial\sigma_{m}^{2}} &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}\dfrac{\partial f_{im}(\ast)}{\partial\sigma_{m}^{2}}=0\text{ for }m=1,\ldots M\nonumber \\ &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}\dfrac{\partial f_{im}(\ast)}{\partial\sigma_{m}^{2}}\dfrac{f_{im}(\ast)}{f_{im}(\ast)}\nonumber \\ &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}f_{im}(\ast)\dfrac{\partial\ln f_{im}(\ast)}{\partial\sigma_{m}^{2}}\nonumber \\ &amp; =\sum_{i=1}^{n}\hat{p}_{im}\dfrac{\partial\ln f_{im}(\ast)}{\partial\sigma_{m}^{2}}=0\label{eq:mstep_sigma}\\ \dfrac{\partial\mathcal{L}}{\partial b_{jm}} &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}\dfrac{\partial f_{im}(\ast)}{\partial b_{jm}}=0\text{ for }m=1,\ldots M,j=1\ldots k\nonumber \\ &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}\dfrac{\partial f_{im}(\ast)}{\partial b_{jm}}\dfrac{f_{im}(\ast)}{f_{im}(\ast)}\nonumber \\ &amp; =\sum_{i=1}^{n}\Bigg(\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)\Bigg)^{-1}\lambda_{m}f_{im}(\ast)\dfrac{\partial\ln f_{im}(\ast)}{\partial b_{jm}}\nonumber \\ &amp; =\sum_{i=1}^{n}\hat{p}_{im}\dfrac{\partial\ln f_{im}(\ast)}{\partial b_{jm}}=0\label{eq:mstep_b} \end{align}$$</code></p>
+<p>Thus, the maximum likelihood equations for estimating the parameters
+<code>$\sigma_{m}^{2}$</code>  and  <code>$b_{jm}$</code>  are weighted averages of the
+maximum likelihood equations
+<code>$\partial\ln f_{im}(\ast)/\partial\theta$</code> , where  <code>$\theta$</code>
+reflects the parameter of interest, arising from each component
+separately and the weights are the posterior probabilities of membership
+of the subjects/observations in each cluster. This particular structure
+gainfully lends itself to the development of a two stage E-M algorithm
+(Dempster, Laird, and Rubin 1977) for the estimation of these parame-
+ters (see Hosmer 1974; Veaux 1986). In the E-stage, one estimates
+<code>$\lambda_{m}$</code>  and  <code>$\hat{p}_{im}$</code>  via expression
+(\ref{eq:lambda_m}) and (\ref{eq:p_im}). In the M-stage, one estimates
+<code>$\sigma_{m}^{2}$</code>  and  <code>$b_{jm}$</code>  via  <code>$M$</code>  weighted least
+squares regressions. In order to show this M-stage, we expand
+(\ref{eq:mstep_sigma}) and (\ref{eq:mstep_b}):</p>
+<p><code>$$\begin{aligned} \dfrac{\partial\mathcal{L}}{\partial b_{jm}} &amp; =\sum_{i=1}^{n}\hat{p}_{im}\dfrac{\partial\ln f_{im}(\ast)}{\partial b_{jm}}\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}f_{im}(\ast)}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\dfrac{\partial\ln f_{im}(\ast)}{\partial f_{im}(\ast)}\dfrac{\partial f_{im}(\ast)}{\partial b_{jm}}\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}f_{im}(\ast)}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\dfrac{1}{f_{im}(\ast)}\dfrac{\partial}{\partial b_{jm}}\Bigg(\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)^{2}\Bigg)\Bigg)\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\Bigg(\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)^{2}\Bigg)\Bigg)\Bigg(-\frac{2}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)(-X_{ij})\Bigg)\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}f_{im}(\ast)\Bigg(\frac{\big(y_{i}-X_{i}'b_{m}\big)X_{ij}}{\sigma_{m}^{2}}\Bigg)\\ &amp; =\sum_{i=1}^{n}\hat{p}_{im}\Bigg(\frac{\big(y_{i}-X_{i}'b_{m}\big)X_{ij}}{\sigma_{m}^{2}}\Bigg)\\ \Rightarrow &amp; \sum_{i=1}^{n}\hat{p}_{im}\big(y_{i}-X_{i}'b_{m}\big)X_{ij}=\mathbf{0} \end{aligned}$$</code></p>
+<p>or</p>
+<p><code>$$\dfrac{\partial\mathcal{L}}{\partial b_{m}}=\sum_{i=1}^{n}\hat{p}_{im}\Bigg(\frac{\big(y_{i}-X_{i}'b_{m}\big)X_{i}}{\sigma_{m}^{2}}\Bigg)$$</code></p>
+<p>which are identical to the stationary equations derived by solving the
+weighted least squares problem where  <code>$\mathbf{y}$</code>  and
+<code>$\mathbf{X}$</code>  are each weighted by  <code>$\sqrt{\hat{p}_{im}}$</code> .
+Thus, the entire set of  <code>$b_{k}$</code>  is derived by performing  <code>$M$</code>
+separate weighted least-squares analyses. Once this is done, the
+estimates of  <code>$\sigma_{m}^{2}$</code>  follow:</p>
+<p><code>$$\begin{aligned} \dfrac{\partial\mathcal{L}}{\partial\sigma_{m}^{2}} &amp; =\sum_{i=1}^{n}\hat{p}_{im}\dfrac{\partial\ln f_{im}(\ast)}{\partial\sigma_{m}^{2}}\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}f_{im}(\ast)}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\dfrac{\partial\ln f_{im}(\ast)}{\partial f_{im}(\ast)}\dfrac{\partial f_{im}(\ast)}{\partial\sigma_{m}^{2}}\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}f_{im}(\ast)}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\dfrac{1}{f_{im}(\ast)}\dfrac{\partial}{\partial\sigma_{m}^{2}}\Bigg(\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)^{2}\Bigg)\Bigg)\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}\Bigg[-\dfrac{1}{2}\big(2\pi\sigma_{m}^{2}\big)^{-\frac{3}{2}}2\pi\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)^{2}\Bigg)\\ &amp; \qquad\qquad\qquad\qquad+\big(2\pi\sigma_{m}^{2}\big)^{-\frac{1}{2}}\exp\bigg(-\frac{1}{2\sigma_{m}^{2}}\big(y_{i}-X_{i}'b_{m}\big)^{2}\Bigg)\dfrac{-\big(y_{i}-X_{i}'b_{m}\big)^{2}}{2}\cdot\bigg(-\sigma_{m}^{-4}\bigg)\Bigg]\\ &amp; =\sum_{i=1}^{n}\dfrac{\lambda_{m}}{\sum_{m=1}^{M}\lambda_{m}f_{im}(\ast)}f_{im}(\ast)\Bigg[-\dfrac{1}{2}\big(2\pi\sigma_{m}^{2}\big)^{-1}2\pi+\dfrac{-\big(y_{i}-X_{i}'b_{m}\big)^{2}}{2}\cdot\bigg(-\sigma_{m}^{-4}\bigg)\Bigg]\\ &amp; =\sum_{i=1}^{n}\hat{p}_{im}\Bigg[\dfrac{-1}{2\sigma_{m}^{2}}+\dfrac{\big(y_{i}-X_{i}'b_{m}\big)^{2}}{2\sigma_{m}^{4}}\Bigg]\\ &amp; =\dfrac{-1}{2\sigma_{m}^{2}}\sum_{i=1}^{n}\Bigg[\hat{p}_{im}-\frac{\hat{p}_{im}\big(y_{i}-X_{i}'b_{m}\big)^{2}}{\sigma_{m}^{2}}\Bigg]=0\\ &amp; \sigma_{m}^{2}=\frac{\sum_{i=1}^{n}\hat{p}_{im}\big(y_{i}-X_{i}'b_{m}\big)^{2}}{\sum_{i=1}^{n}\hat{p}_{im}} \end{aligned}$$</code></p>
+<p>Thus,  <code>$\sigma_{m}^{2}$</code>  can be obtained during the  <code>$M$</code>
+weighted least-squares procedures for estimating  <code>$b_{m}$</code> . Note,
+because the loglikihood function becomes unbounded as
+<code>$\sigma_{m}^{2}\rightarrow0$</code> ,  <code>$\sigma_{m}^{2}$</code>  is set to a
+default small positive value (.01) if it becomes small during these
+iterations.</p>
+<p>To calculate the loglikelihood, we can NOT use weighted average of the
+log-likelihood across each cluster regression, since  <code>$\ln(x)$</code>  is
+NOT a linear function.</p>
+<p><code>$$\begin{aligned} \mathcal{L} &amp; =\ln L=\sum_{i=1}^{n}\ln\Bigg[\sum_{m=1}^{M}\lambda_{m}f_{im}(y_{i}|X_{i}^{'},\sigma_{m}^{2},b_{m}')\Bigg]\\ &amp; \neq\sum_{m=1}^{M}\lambda_{m}\sum_{i=1}^{n}\ln\Bigg[f_{im}(y_{i}|X_{i}^{'},\sigma_{m}^{2},b_{m}')\Bigg] \end{aligned}$$</code></p>
+<p>Our approach to identify the appropriate number of clusters
+<code>$M^{\ast}$</code>  in such mixture clustering procedures (cf. ScIove 1977)
+involves the use of the Akaike Information Criteria (Akaike 1974) which
+is defined as:</p>
+<p><code>$$AIC(M)=-2\ln(\max L(M))+2n(M)$$</code>
+where  <code>$n(M)$</code>  is the effective number of parameters estimated in a
+<code>$M$</code>  clusterwise regression solution:</p>
+<p><code>$$n(M)=nM+2M-1$$</code></p>
+<p>One of the appealing properties of maximum likelihood estimators is
+that, under typical regularity conditions, these estimators are
+asymptotically normal. Define  <code>$\mathbf{b}$</code>  as a vector of all the
+<code>$(\mathbf{b}_{1},\mathbf{b}_{2},\ldots,\mathbf{b}_{M})$</code>  estimated
+coefficients in a maximum likelihood context, and  <code>$\mathbf{B}$</code>  as
+the corresponding vector of unknown population parameters
+<code>$(\mathbf{B}_{1},\mathbf{B}_{2},\ldots,\mathbf{B}_{M})$</code> . Then,
+according to Theil (1971),</p>
+<p><code>$$\sqrt{n}(\mathbb{\mathbf{b}-\mathbf{B}})\overset{d}{\rightarrow}\mathcal{N}(\mathbf{O},\lim(R(\mathbf{B})/n)^{-1})$$</code></p>
+<p>where</p>
+<p><code>$$R(\mathbf{B})=-\mathbb{E}\Bigg[\dfrac{\partial^{2}\mathcal{L}}{\partial\mathbf{B}\partial\mathbf{B}'}\Bigg]$$</code></p>
+<p>is the information matrix.
+<code>$$\begin{align}f(y|x) &amp; =\mathbb{E}_{z}f(y|x,z)\\ &amp; =\sum_{m=1}^{M}f(y|x,z)p(z=m) \end{align}$$</code></p>
+<h2 id="代码实现">代码实现</h2>
+<p>根据上面的论文结果，可以在R中实现对有限混合模型的估计，具体代码见网站：<a href="https://neomin.top/posts/fmm/fmm_implementation/">https://neomin.top/posts/fmm/fmm_implementation/</a>。</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Standford CS229 - Machine Learning:
+<a href="https://see.stanford.edu/Course/CS229">https://see.stanford.edu/Course/CS229</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+    <hr>
+
+  <footer>
+  
+  
+  </footer>
+  </body>
+</html>
+
