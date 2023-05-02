@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plotly</title>
+    <!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+    <script src="/home/neo/Seafile/research/projects/researchNotes/static/js_lib/plotly-2.20.0.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js"></script>
+</head>
+<body>
+    <div id="test"></div>
+    <script>
+        var url = "./earthquakes.geojson";
+
+        Plotly.d3.json(url, (err, raw) => {
+            var lon = raw.features.map(f => f.geometry.coordinates[0]);
+            var lat = raw.features.map(f => f.geometry.coordinates[1]);
+
+            var data = [
+                { type: "scattermapbox", lon: lon, lat: lat, hoverinfo: "lon+lat" }
+            ];
+
+            var layout = {
+                mapbox: { style: "dark", zoom: 2, center: { lon: -150, lat: 60 } },
+                margin: { t: 0, b: 0 }
+            };
+
+            var config = {
+                responsive: true
+            };
+
+            Plotly.newPlot('test', data, layout, config);
+        });
+    </script>
+</body>
+</html>

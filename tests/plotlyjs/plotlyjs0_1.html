@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plotly</title>
+    <script src="/home/neo/Seafile/research/projects/researchNotes/static/js_lib/plotly-2.20.0.min.js"></script>
+</head>
+<body>
+    <div id="test"></div>
+    <script>
+        var data = [{
+            x: [0, 10, 20, 30, 40, 50],
+            y: [0, 10, 20, 30, 40, 50] }];
+        var layout = {font: {size: 18}};
+        var config = {responsive: true};
+        TESTER = document.getElementById('test');
+        Plotly.newPlot(TESTER, data, layout, config);
+     </script>
+</body>
+</html>

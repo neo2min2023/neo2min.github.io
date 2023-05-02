@@ -2,13 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https:neo2min2023.github.io /posts/fmm/em_fmm/</loc>
-    <lastmod>2023-04-20T11:48:28+08:00</lastmod>
+    <loc>https:neo2min2023.github.io /posts/siterelated/ces/</loc>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /posts/ces/</loc>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
   </url><url>
     <loc>https:neo2min2023.github.io /posts/</loc>
-    <lastmod>2023-04-20T11:48:28+08:00</lastmod>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
   </url><url>
     <loc>https:neo2min2023.github.io /</loc>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /tests/test/</loc>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /posts/test/</loc>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /tests/</loc>
+    <lastmod>2023-05-01T21:25:14+08:00</lastmod>
+  </url><url>
+    <loc>https:neo2min2023.github.io /posts/fmm/em_fmm/</loc>
     <lastmod>2023-04-20T11:48:28+08:00</lastmod>
   </url><url>
     <loc>https:neo2min2023.github.io /posts/test_archetypes/</loc>

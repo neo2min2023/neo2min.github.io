@@ -6,7 +6,47 @@
     <description>Recent content on Research Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 20 Apr 2023 11:48:28 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 01 May 2023 21:25:14 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CES production function</title>
+      <link>https:neo2min2023.github.io /posts/siterelated/ces/</link>
+      <pubDate>Mon, 01 May 2023 21:25:14 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/siterelated/ces/</guid>
+      <description>CES production function $Q = F \cdot \left(a \cdot K^{\rho } + (1−a) \cdot L^{\rho }\right)^{\frac{\upsilon }{\rho }}$
+where
+$Q$ = Quantity of output $F$ = Factor productivity $a$ = Share parameter $K$ = Quantities of primary production factors (Capital and Labor) $\rho $ = Substitution parameter $\sigma $ = $\frac{1}{1-\rho}$ Elasticity of substitution $\upsilon $ &amp;gt; 1 (Increasing return to scale). As its name suggests, the CES production function exhibits constant elasticity of substitution between capital and labor.</description>
+    </item>
+    
+    <item>
+      <title>html exported from jupyter</title>
+      <link>https:neo2min2023.github.io /posts/ces/</link>
+      <pubDate>Mon, 01 May 2023 21:25:14 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/ces/</guid>
+      <description>&lt;!DOCTYPE html&gt; In&amp;nbsp;[1]: import numpy as np import pandas as pd import plotly.express as px import plotly.graph_objects as go CES production function&amp;#182; $Q = F \cdot \left(a \cdot K^{\rho } + (1−a) \cdot L^{\rho }\right)^{\frac{\upsilon }{\rho }}$
+where
+$Q$ = Quantity of output $F$ = Factor productivity $a$ = Share parameter $K$ = Quantities of primary production factors (Capital and Labor) $\rho $ = Substitution parameter $\sigma $ = $\frac{1}{1-\rho}$ Elasticity of substitution $\upsilon $ &amp;gt; 1 (Increasing return to scale).</description>
+    </item>
+    
+    <item>
+      <title>test html</title>
+      <link>https:neo2min2023.github.io /tests/test/</link>
+      <pubDate>Mon, 01 May 2023 21:25:14 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /tests/test/</guid>
+      <description> </description>
+    </item>
+    
+    <item>
+      <title>test html under contents</title>
+      <link>https:neo2min2023.github.io /posts/test/</link>
+      <pubDate>Mon, 01 May 2023 21:25:14 +0800</pubDate>
+      
+      <guid>https:neo2min2023.github.io /posts/test/</guid>
+      <description> Welcome test html content </description>
+    </item>
+    
     <item>
       <title>EM_FMM</title>
       <link>https:neo2min2023.github.io /posts/fmm/em_fmm/</link>

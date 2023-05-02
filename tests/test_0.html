@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<script src="/home/neo/Seafile/research/projects/researchNotes/static/js_lib/plotly-2.20.0.min.js" charset="utf-8"></script>
+<!-- <script src="https://cdn.plot.ly/plotly-2.20.0.min.js" charset="utf-8"></script> -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js"></script>
+</head>
+<body>
+
+<h1>This is a Heading</h1>
+<p>This is a paragraph.</p>
+
+
+	<div id="tester" style="width:600px;height:250px;"></div>
+	<script>
+		TESTER = document.getElementById('tester');
+		Plotly.newPlot( TESTER, [{
+		x: [1, 2, 3, 4, 5],
+		y: [1, 2, 4, 8, 16] }], {
+		margin: { t: 0 } } );
+	</script>
+
+
+
+
+	<div id="graph-div" style="width:600px;height:250px;"></div>
+	<script>
+	  var myJson = '{"data":[{"y":[1,2,3]}],"layout":{"title":"my graph"}}';
+	  var figure = JSON.parse(myJson);
+
+	  Plotly.newPlot('graph-div', figure.data, figure.layout);
+	</script>
+
+
+	<script>
+	    d3.json("users.json", function(err, data) {
+		console.log(data);
+	    });
+	</script>
+
+
+
+
+
+
+<!-- 	<div id="tester0" style="width:600px;height:250px;"></div> -->
+<!-- <script> -->
+<!-- 		TESTER = document.getElementById('tester0'); -->
+<!-- d3.json("/home/neo/Seafile/research/projects/researchNotes/static/image/CES/costMin3d.json", function(err, fig) { -->
+<!--   console.log(fig); -->
+    <!-- Plotly.plot("/home/neo/Seafile/research/projects/researchNotes/static/image/CES/costMin3d.json", fig.data, fig.layout, {responsive: true}); -->
+<!-- }); -->
+<!-- </script> -->
+
+<!-- <script type="module">  import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";const div = d3.selectAll("div");</script> -->
+
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js"></script> -->
+
+
+
+
+
+
+
+
+
+
+
+	<div id="tester2" style="width:600px;height:650px;"></div>
+
+<script>
+		TESTER = document.getElementById('tester2');
+var trace1 = {
+  x: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  y: [8, 7, 6, 5, 4, 3, 2, 1, 0],
+  type: 'scatter'
+};
+var trace2 = {
+  x: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  y: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  type: 'scatter'
+};
+var data = [trace1, trace2];
+var layout = {
+  xaxis: {
+    autotick: false,
+    ticks: 'outside',
+    tick0: 0,
+    dtick: 0.25,
+    ticklen: 8,
+    tickwidth: 4,
+    tickcolor: '#000'
+  },
+  yaxis: {
+    autotick: false,
+    ticks: 'outside',
+    tick0: 0,
+    dtick: 0.25,
+    ticklen: 8,
+    tickwidth: 4,
+    tickcolor: '#000'
+  }
+};
+Plotly.newPlot('tester2', data, layout);
+</script>
+
+</body>
+</html>
+
+
+
