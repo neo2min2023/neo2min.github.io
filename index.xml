@@ -6,27 +6,25 @@
     <description>Recent content on Research Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 01 May 2023 21:25:14 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 02 May 2023 18:46:08 +0800</lastBuildDate><atom:link href="https:neo2min2023.github.io /index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>CES production function</title>
-      <link>https:neo2min2023.github.io /posts/siterelated/ces/</link>
-      <pubDate>Mon, 01 May 2023 21:25:14 +0800</pubDate>
+      <title>Embed Plotly in markdown</title>
+      <link>https:neo2min2023.github.io /posts/siterelated/embedplotly/</link>
+      <pubDate>Tue, 02 May 2023 18:46:08 +0800</pubDate>
       
-      <guid>https:neo2min2023.github.io /posts/siterelated/ces/</guid>
-      <description>CES production function $Q = F \cdot \left(a \cdot K^{\rho } + (1−a) \cdot L^{\rho }\right)^{\frac{\upsilon }{\rho }}$
-where
-$Q$ = Quantity of output $F$ = Factor productivity $a$ = Share parameter $K$ = Quantities of primary production factors (Capital and Labor) $\rho $ = Substitution parameter $\sigma $ = $\frac{1}{1-\rho}$ Elasticity of substitution $\upsilon $ &amp;gt; 1 (Increasing return to scale). As its name suggests, the CES production function exhibits constant elasticity of substitution between capital and labor.</description>
+      <guid>https:neo2min2023.github.io /posts/siterelated/embedplotly/</guid>
+      <description>add a conditional partial to include plotlyjs library in head if the page has plotly: true. Also include d3 library in the header. 1{{ if .Params.plotly }} 2 &amp;lt;script src=&amp;#34;https://cdn.plot.ly/plotly-latest.min.js&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; 3 &amp;lt;script type=&amp;#34;text/javascript&amp;#34; src=&amp;#34;https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; 4{{ end }} add a shortcode to run a piece of javascript for plotly. Note that some blog use Plotly.d3.json and Plotly.plot in the shortcode, but those two does not work, at least for this version of plotlyjs.</description>
     </item>
     
     <item>
-      <title>html exported from jupyter</title>
+      <title>CES production function</title>
       <link>https:neo2min2023.github.io /posts/ces/</link>
       <pubDate>Mon, 01 May 2023 21:25:14 +0800</pubDate>
       
       <guid>https:neo2min2023.github.io /posts/ces/</guid>
-      <description>&lt;!DOCTYPE html&gt; In&amp;nbsp;[1]: import numpy as np import pandas as pd import plotly.express as px import plotly.graph_objects as go CES production function&amp;#182; $Q = F \cdot \left(a \cdot K^{\rho } + (1−a) \cdot L^{\rho }\right)^{\frac{\upsilon }{\rho }}$
+      <description>CES production function $Q = F \cdot \left(a \cdot K^{\rho } + (1−a) \cdot L^{\rho }\right)^{\frac{\upsilon }{\rho }}$
 where
-$Q$ = Quantity of output $F$ = Factor productivity $a$ = Share parameter $K$ = Quantities of primary production factors (Capital and Labor) $\rho $ = Substitution parameter $\sigma $ = $\frac{1}{1-\rho}$ Elasticity of substitution $\upsilon $ &amp;gt; 1 (Increasing return to scale).</description>
+$Q$ = Quantity of output $F$ = Factor productivity $a$ = Share parameter $K$ = Quantities of primary production factors (Capital and Labor) $\rho $ = Substitution parameter $\sigma $ = $\frac{1}{1-\rho}$ Elasticity of substitution $\upsilon $ &amp;gt; 1 (Increasing return to scale). As its name suggests, the CES production function exhibits constant elasticity of substitution between capital and labor.</description>
     </item>
     
     <item>

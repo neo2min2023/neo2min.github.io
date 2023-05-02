@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Embed Plotly in markdown | Research Notes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/css/mathjax.css" />
+    
+    
+    
+    
+    
+    
+    
+<script src="/js_lib/plotly-2.20.0.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js"></script>
+
+
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+
+    <h2>Embed Plotly in markdown</h2>
+    <h4>2023-05-02 18:46:08 &#43;0800 CST</h4>
+    <aside>
+        <nav id="TableOfContents"></nav>
+    </aside>
+    <hr>
+    <ol>
+<li>add a conditional partial to <a href="https://plotly.com/javascript/getting-started/">include plotlyjs library</a> in head if the page has <code>plotly: true</code>. Also include <code>d3</code> library in the header.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>{{ if .Params.plotly }}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>    &lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://cdn.plot.ly/plotly-latest.min.js&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>    &lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text/javascript&#34;</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.js&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>{{ end }}
+</span></span></code></pre></div><ol start="2">
+<li>add a shortcode to run a piece of javascript for plotly. Note that some blog use <code>Plotly.d3.json</code> and <code>Plotly.plot</code> in the shortcode, but those two does not work, at least for this version of plotlyjs. The official website <a href="https://plotly.com/javascript/axes/">site</a> shows that <code>d3.json</code> and <code>Plotly.newPlot</code> can work.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span>{{ $json := .Get &#34;json&#34; }}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span>{{ $height := .Get &#34;height&#34; | default &#34;200px&#34; }}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span>&lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{{$json}}&#34;</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;plotly&#34;</span> <span style="color:#a6e22e">style</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;height:{{$height}}&#34;</span>&gt;&lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span>&lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span><span style="color:#a6e22e">d3</span>.<span style="color:#a6e22e">json</span>({{<span style="color:#a6e22e">$json</span>}}, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">fig</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span>    <span style="color:#a6e22e">Plotly</span>.<span style="color:#a6e22e">newPlot</span>(<span style="color:#e6db74">&#39;{{$json}}&#39;</span>, <span style="color:#a6e22e">fig</span>.<span style="color:#a6e22e">data</span>, <span style="color:#a6e22e">fig</span>.<span style="color:#a6e22e">layout</span>, {<span style="color:#a6e22e">responsive</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>});
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span>});
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span>&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span></code></pre></div><ol start="3">
+<li>use <code>fig.write_json(&quot;figure.json&quot;)</code> to export a figure in jupyter and place it under <code>/static/image/CES</code> and include it in markdown file by <code>{{\&lt; plotly json=&quot;/image/CES/figure.json&quot; height=&quot;900px&quot; &gt;}}</code>.</li>
+</ol>
+<ul>
+<li><a href="https://plotly.com/javascript/getting-started/">https://plotly.com/javascript/getting-started/</a></li>
+<li><a href="https://discourse.gohugo.io/t/embed-plotly-figure-html-in-markdown-post/24993">https://discourse.gohugo.io/t/embed-plotly-figure-html-in-markdown-post/24993</a></li>
+<li><a href="https://mertbakir.gitlab.io/hugo/plotly-with-hugo/">https://mertbakir.gitlab.io/hugo/plotly-with-hugo/</a></li>
+<li><a href="https://ig248.gitlab.io/post/2018-11-05-plotly-sample/">https://ig248.gitlab.io/post/2018-11-05-plotly-sample/</a></li>
+<li><a href="https://towardsdatascience.com/how-to-use-plotly-js-for-data-visualization-46933e1bbd29">https://towardsdatascience.com/how-to-use-plotly-js-for-data-visualization-46933e1bbd29</a></li>
+<li><a href="https://towardsdatascience.com/create-a-plotly-data-visualization-app-using-one-line-of-js-b1865391faa4">https://towardsdatascience.com/create-a-plotly-data-visualization-app-using-one-line-of-js-b1865391faa4</a></li>
+</ul>
+
+    <hr>
+
+  <footer>
+  
+  
+  </footer>
+  </body>
+</html>
+
